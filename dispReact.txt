@@ -1,0 +1,29 @@
+data file type: 2
+
+mesh file
+C:\JavaProjects\proj8\dipsReactNewmdmpp5\bun.txt
+
+data folder:
+C:\JavaProjects\proj8\dipsReactNewmdmpp5
+
+file name common part:
+disp
+
+temporal: 0,1799,10
+
+extension
+txt
+
+animation mode: 5
+
+timedelay: 10
+
+regions: 
+17
+
+rotstep:.05
+
+dt:5.55555e-6
+
+node:0
+comp:1

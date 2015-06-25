@@ -1,0 +1,29 @@
+data file type: 2
+
+mesh file
+C:\JavaProjects\proj8\mot4th2DFine.txt
+
+data folder:
+C:\JavaProjects\proj8\forces2DMotorMag
+
+file name common part:
+force
+
+temporal: 0,1799,10
+
+extension
+txt
+
+animation mode: 2
+
+timedelay: 10
+
+regions: 
+8
+
+rotstep:0.5
+
+dt:5.5555e-6
+
+node:0
+comp:0

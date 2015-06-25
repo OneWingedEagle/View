@@ -1,0 +1,31 @@
+data file type: 2
+
+mesh file
+C:\JavaProjects\proj8\dispTotHalf\bun.txt
+
+data folder:
+C:\JavaProjects\proj8\dispMagHalf
+
+file name common part:
+disp
+
+temporal: 0,99,10
+
+extension
+txt
+
+animation mode: 5
+
+timedelay: 10
+
+regions: 
+2
+
+rotstep:0.05
+
+dt:5.55555e-6
+
+node:0
+comp:0
+.092 0 0
+

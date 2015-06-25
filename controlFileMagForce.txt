@@ -1,0 +1,29 @@
+data file type: 0
+
+mesh file
+C:\JavaProjects\proj8\assembled4.txt
+
+data folder:
+C:\JavaProjects\proj8\force6A4thMag-0-900p1Sin
+
+file name common part:
+force
+
+temporal: 0,1800,10
+
+extension
+txt
+
+animation mode: 2
+
+timedelay: 50
+
+regions: 
+1
+
+rotstep:.5
+
+dt:1.111111e-4
+
+node:0
+comp:0

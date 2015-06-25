@@ -1,0 +1,31 @@
+data file type: 2
+
+mesh file
+C:\JavaProjects\proj8\dispTotHalf\bun.txt
+
+data folder:
+C:\JavaProjects\proj8\dispTotHalf
+
+file name common part:
+disp
+
+temporal: 0,1799,1
+
+extension
+txt
+
+animation mode: 3
+
+timedelay: 40
+
+regions: 
+2
+
+rotstep:0.05
+
+dt:5.55555e-6
+
+node:0
+comp:1
+.092 0 0
+
