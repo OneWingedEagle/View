@@ -35,13 +35,14 @@ public class Model{
 	,numberOfKnownPhis,numberOfUnknowns,analysisMode,stressViewCode,nodalStressMaxCode
 	,numberOfUnknownU,numberOfUnknownUcomp,numberOfUnknownA,numberOfUnknownAcomp,defMode, nRotReg;
 	public boolean deform,hasJ,hasM,forceLoaded,fluxLoaded,potentialLoaded,
-	stressLoaded,forceCalcLoaded,motor,fullMotor;
+	stressLoaded,forceCalcLoaded,motor,fullMotor,batchAnim;
 	int[][] facetVert={{6,2,5},{7,4,3},{6,7,2},{0,4,1},{4,7,5},{0,1,3}};
 	public byte elCode=4;
 	public double nu0=1e7/(4*Math.PI);
 	public String elType="hexahedron";
 
-	public int animDataCode,animMode,nAnimSteps,animTD,animChosenNode,animChonenNodeComp;
+	public int animDataCode,animChonenNodeComp,nAnimSteps,
+	animMode,nBegin,nEnd,nInc,animTD,animChosenNode,animChonenNodeCom;
 	public int[] animRegs;
 	public double dt,alpha1,alpha2,r1,r2,rm,TrqZ,height=.06,cpb=1,rotStep;
 	public String[] animDataFile;

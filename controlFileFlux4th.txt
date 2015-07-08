@@ -1,10 +1,10 @@
 data file type: 0
 
 mesh file
-C:\JavaProjects\MagFem\flux-0-1800-distilled\bun.txt
+C:\JavaProjects\MagFem\flux-0-1800CalfineOK\bun.txt
 
 data folder:
-C:\JavaProjects\MagFem\flux-0-1800-distilled
+C:\JavaProjects\MagFem\flux-0-1800CalfineOK
 
 file name common part:
 flux
@@ -16,9 +16,9 @@ txt
 
 animation mode: 0
 
-batch mode: t
+batch mode: f
 
-timedelay: 2
+timedelay: 20
 
 regions: 
 all

@@ -622,7 +622,12 @@ boolean rotating=true;
 			if(h!=0)
 			nSteps=(int)Math.round((a2-a1)/h)+1;
 			}
+			
+		
 
+			model.nBegin=n1;
+			model.nEnd=n2;
+			model.nInc=d;
 			model.nAnimSteps=nSteps;
 			
 			line=br.readLine();
@@ -633,6 +638,11 @@ boolean rotating=true;
 			br.readLine();
 			line=br.readLine();
 			model.animMode=getIntData(line);
+			
+			br.readLine();
+			line=br.readLine();
+			model.batchAnim=getBooleanData(line);
+			
 			
 			line=br.readLine();
 			line=br.readLine();
@@ -653,7 +663,8 @@ boolean rotating=true;
 			br.readLine();
 			line=br.readLine();
 			model.rotStep=getScalarData(line);
-				
+			model.rotStep=getScalarData(line);
+			
 			br.readLine();
 			line=br.readLine();
 			model.dt=getScalarData(line);
@@ -688,7 +699,7 @@ boolean rotating=true;
 					}
 				}
 					
-		model.animDataFile=animFile;
+	model.animDataFile=animFile;
 	
 				
 		}
@@ -1143,11 +1154,16 @@ boolean rotating=true;
 		return Integer.parseInt(sp[sp.length-1]);
 }
 
- private boolean getBooleanData(String line){
+	private boolean getBooleanData(String line){
+		boolean b=false;
 		String[] sp=line.split(regex);	
 		
-	return Boolean.parseBoolean(sp[sp.length-1]);
-}
+		if(sp[sp.length-1].startsWith("t"))	
+			b=true;
+		
+		return b;
+
+	}
  
  private String getStringData(String line){
 		String[] sp=line.split(":");	

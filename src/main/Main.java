@@ -530,8 +530,12 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 	}
 
 	public void fluxAnim()  {
+		
 		Thread tr = new Thread() {
 
+		
+			String folder=model.animDataFolder+"\\";
+			
 			public void run() {
 
 				interaction=2;
@@ -548,8 +552,8 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				int nnx=model.animChosenNode;
 				int comp=model.animChonenNodeComp;
 				boolean fillT=(nnx>0);
-			
-			
+
+				Vect[][] BB=new Vect[model.nAnimSteps][1];
 				
 	boolean[] rc=new boolean[1+model.numberOfRegions];
 				
@@ -574,8 +578,22 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					}
 				}
 				}
+				
+				if(model.batchAnim){
+					for(int i=0;i<model.nAnimSteps;i++){
+					String file=folder+model.animDataFile[i];
+					
+					model.loadFlux(file,nc,i*model.rotStep*model.nInc);
+					
+					BB[i]=new Vect[model.numberOfElements];
+					for(int ie=1;ie<model.numberOfElements;ie++)
+					BB[i][ie-1]=model.element[ie].getB();
+					}
+					
+					
+				}
 
-			//	gui.vwp.runMotor=!gui.vwp.runMotor;			
+				//gui.vwp.runMotor=!gui.vwp.runMotor;			
 				
 				int m=0;
 				while(true){
@@ -586,12 +604,19 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					gui.vwp.tfX2.setText(Double.toString(gui.vwp.rng));
 
 					int i=m%Lt;
-					gui.vwp.rng=i*model.rotStep;
-					String folder=model.animDataFolder+"\\";
+
+					gui.vwp.rng=i*model.rotStep*model.nInc;
+					
 				
+					if(model.batchAnim){
+						for(int ie=1;ie<model.numberOfElements;ie++)
+							model.element[ie].setB(BB[i][ie-1]);
+					}
+					else{
 					String file=folder+model.animDataFile[i];
 					
 						model.loadFlux(file,nc,gui.vwp.rng);
+					}
 
 						if(m==0)
 							gui.vwp.setVectField(model,4);
@@ -602,7 +627,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					if(fillT){
 						T.el[m]=model.element[nnx].getB().el[comp];
 						}
-					
+
 					Transform3D tr=new Transform3D();
 					tr.rotZ(gui.vwp.rng*PI/180);
 
@@ -610,8 +635,6 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					for(int k=1;k<=model.numberOfRegions;k++){
 						if(model.region[k].rotor)
 							gui.vwp.surfFacets[k].setTransform(tr);
-				
-
 
 					}
 
@@ -621,8 +644,6 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					
 					
 					m++;
-					
-
 
 				}
 				
@@ -661,7 +682,6 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				
 					
 				int Lt=model.nAnimSteps;
-				boolean bach=(model.animMode>5);
 				
 				
 				int vmode=model.animDataCode;
@@ -688,7 +708,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				Vect[][] nv=new Vect[1][1];
 				//========
 				
-				if(bach){
+				if(model.batchAnim){
 				
 				int ix=0;
 				map=new int[1+model.numberOfNodes];
@@ -759,7 +779,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 						gui.vwp.tfX2.setText(Integer.toString(i));
 			
 					
-						if(bach)
+						if(model.batchAnim)
 						{
 							for(int j=0;j<nDefNodes;j++)
 								model.node[map[j]].setU(nv[j][i]);
@@ -830,7 +850,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 
 				int Lt=model.nAnimSteps;
-				boolean bach=(model.animMode>1);
+				
 		
 				int K=1;
 				
@@ -854,7 +874,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				Vect[][] nv=new Vect[1][1];
 				//========
 				
-				if(bach){
+				if(model.batchAnim){
 				
 				int ix=0;
 				map=new int[1+model.numberOfNodes];
@@ -931,7 +951,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 						gui.vwp.tfX2.setText(Double.toString(i*.5));
 			
 					
-						if(bach)
+						if(model.batchAnim)
 						{
 							for(int j=0;j<nDefNodes;j++)
 								model.node[map[j]].setNodalVect(vmode,nv[j][i]);
@@ -1030,9 +1050,9 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 		
 
 				int Lt=model.nAnimSteps;
-				boolean bach=(model.animMode==3);
+		
 				boolean vel=(model.animMode==4);
-				if(vel) bach=true;
+				if(vel) model.batchAnim=true;
 				
 			
 				int K=1;
@@ -1059,7 +1079,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				Vect[][] nv=new Vect[1][1];
 				//========
 				
-				if(bach){
+				if(model.batchAnim){
 				
 				int ix=0;
 				map=new int[1+model.numberOfNodes];
@@ -1156,7 +1176,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 						gui.vwp.tfX2.setText(df.format(gui.vwp.rng));
 			
 					
-						if(bach)
+						if(model.batchAnim)
 						{
 							for(int j=0;j<nDefNodes;j++)
 								model.node[map[j]].setNodalVect(vmode,nv[j][i]);
@@ -1186,9 +1206,10 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 
 						for(int k=1;k<=model.numberOfRegions;k++){
-							if(model.region[k].rotor){
+							util.pr(k);
+						//	if(model.region[k].rotor){
 								gui.vwp.surfFacets[k].setTransform(tr);
-							}
+							//}
 						}
 		
 						m++;
