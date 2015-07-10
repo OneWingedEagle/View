@@ -735,6 +735,9 @@ boolean rotating=true;
 					Vect ss=new Vect(L);
 					for(int j=0;j<L;j++)
 						ss.el[j]=Double.parseDouble(scr.next());
+					
+					//if(model.element[ne].getRegion()!=1) continue;
+
 					model.element[ne].setDeformable(true);
 					model.element[ne].setStress(ss);
 				//	Vect v1=model.getElementCenter(ne).v2();

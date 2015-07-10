@@ -16,12 +16,12 @@ txt
 
 animation mode: 0
 
-timedelay: 200
+timedelay: 100
 
 regions: 
 all
 
-rotstep:.0
+rotstep:.5
 
 dt:5.55e-6
 

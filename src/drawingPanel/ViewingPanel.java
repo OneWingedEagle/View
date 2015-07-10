@@ -1145,7 +1145,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		for (int ir = 1; ir <=this.numberOfRegions; ir++) {
 		//	if(ir!=1) continue;
 
-			this.surfFacets[ir].setEdgeColor(Color.black,.8);
+			this.surfFacets[ir].setEdgeColor(Color.black,.95);
 			this.surfFacets[ir].paintNodalScalar(model);	
 
 		}
