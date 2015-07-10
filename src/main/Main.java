@@ -44,7 +44,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 	private Model model;
 	private Thread thread;
-	private int mheavy=1000,interaction;	
+	private int mheavy=1000,interaction;
 	private boolean heavy,resultReady;
 	private DecimalFormat formatter=new DecimalFormat("0.000E00");
 	private String path = System.getProperty("user.dir") + "\\model.txt";
