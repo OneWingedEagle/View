@@ -1,10 +1,10 @@
 data file type: 0
 
 mesh file
-C:\Works\proj8\flux-0-1800CalfineFull\bun.txt
+C:\Works\proj8\flux-0-1800-distilled\bun.txt
 
 data folder:
-C:\Works\proj8\flux-0-1800CalfineFull
+C:\Works\proj8\flux-0-1800-distilled
 
 file name common part:
 flux
@@ -16,12 +16,12 @@ txt
 
 animation mode: 0
 
-batch mode: t
+batch mode: f
 
 timedelay: 20
 
 regions: 
-all
+2,3,6
 
 rotstep:.05
 

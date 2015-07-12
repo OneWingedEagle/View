@@ -46,7 +46,7 @@ public class Model{
 	public int[] animRegs;
 	public double dt,alpha1,alpha2,r1,r2,rm,TrqZ,height=.06,cpb=1,rotStep;
 	public String[] animDataFile;
-	public String eddyFolder,filePath,meshFilePath,dataFilePath,
+	public String eddyFolder,filePath,meshFilePath,dataFilePath,fileCommon,fileExtension,
 	fluxFilePath,eddyFilePath,fluxFolder,animDataFolder,chosenNodeCoord;
 
 	public Model(){}
@@ -193,10 +193,11 @@ public class Model{
 	public boolean loadFlux(String fluxFilePath,double angDeg){
 
 		boolean b=loader.loadFlux(this,fluxFilePath,angDeg);
-		if(b)
-			this.setNodalScalar(0);
+		/*if(b)
+			this.setNodalScalar(0);*/
 		return b;
 	}
+
 
 	public boolean loadPotential(String file){
 
@@ -927,6 +928,7 @@ public class Model{
 				if(mode==0){
 					sv=element[i].getB();
 					se=sv.norm();
+					
 				}
 				
 				else if(mode==1)sv=element[i].getStress();

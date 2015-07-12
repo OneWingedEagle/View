@@ -226,6 +226,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 		if(result && !this.heavy){
 			if(this.gui.vwp.runMotor){
 				model.setNodalScalar(0);
+				if(model.nAnimSteps==1)
 				this.gui.vwp.paintNodalScalar(this.model);
 			}
 			else{
@@ -389,8 +390,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				if(model.node[i].getCoord().sub(v).norm()<1e-4){util.pr(i); v.hshow(); model.animChosenNode=i; break;}
 			}
 			}
-			
-		//	util.pr(model.animChosenNode);
+	
 			if(model.animChosenNode>0)
 			model.node[model.animChosenNode].getCoord().hshow();
 
@@ -398,21 +398,20 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				if(model.animMode==0) fluxAnim();
 				else if(model.animMode==1) animatePaint();
 			}
-			
-	
-			else if(model.animDataCode<3){
-
-
-
-				if(model.animMode<2)
-					animatePaint();
-				else if(model.animMode<5)
-					animateVectSurf();
-			/*		else if(model.animMode==2)
-					animateVectorAll();*/
-				else
-					animateShape();
+			else if(model.animDataCode==1){
+				/*if(model.animMode==0) */
+				animateVectSurf();
+				//else if(model.animMode==1) animateShape();
 			}
+			else if(model.animDataCode==2){
+				if(model.animMode==0) animateVectSurf();
+				else if(model.animMode==1) animateShape();
+			}
+			else if(model.animDataCode==3){
+				animatePaint();
+			}
+
+
 		
 		//	deformMeshAppen();
 
@@ -512,7 +511,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					}
 
 					try {
-						new Thread().sleep(20);
+						new Thread().sleep(10);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -531,13 +530,21 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 	public void fluxAnim()  {
 		
+	
 		Thread tr = new Thread() {
+			
+			String file2 = System.getProperty("user.dir") + "\\Iclark.txt";
 
-		
+		double[][] Idq=model.loader.loadArrays(1800, 4, file2);
+			
 			String folder=model.animDataFolder+"\\";
 			
 			public void run() {
 
+				int nex=1;
+				int[] nxx={1,1,1};
+				model.element[nex].setVertNumb(nxx);
+				
 				interaction=2;
 				int Lt=model.nAnimSteps;
 				gui.vwp.rng=0;
@@ -580,42 +587,65 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				}
 				
 				if(model.batchAnim){
-					for(int i=0;i<model.nAnimSteps;i++){
-					String file=folder+model.animDataFile[i];
 					
-					model.loadFlux(file,nc,i*model.rotStep*model.nInc);
+					int ix=0;
+					for(int i=model.nBegin;i<=model.nEnd;i+=model.nInc){
+					//String file=folder+model.animDataFile[i];
+					int d=i%(model.nEnd);
+				
+					String file=folder+"\\"+model.fileCommon+d+"."+model.fileExtension;
 					
-					BB[i]=new Vect[model.numberOfElements];
+					model.loadFlux(file,nc,d*model.rotStep);
+
+					int v=i%(Idq.length);
+					int ne=model.region[4].getFirstEl();
+					//ne=9832;
+					ne=nex;
+					model.element[ne].setB(model.getElementCenter(ne).times(0).add(new Vect(Idq[v][1],Idq[v][2]).times(6)));
+					
+					BB[ix]=new Vect[model.numberOfElements];
 					for(int ie=1;ie<model.numberOfElements;ie++)
-					BB[i][ie-1]=model.element[ie].getB();
+					BB[ix][ie-1]=model.element[ie].getB();
+					
+					ix++;
+					
 					}
 					
 					
 				}
-
 				//gui.vwp.runMotor=!gui.vwp.runMotor;			
-				
-				int m=0;
+			
+				int m=model.nBegin;
+				int ix=0;
 				while(true){
 					
 					if(fillT && m>=K*Lt) break;
 						
 
 					gui.vwp.tfX2.setText(Double.toString(gui.vwp.rng));
-
-					int i=m%Lt;
-
-					gui.vwp.rng=i*model.rotStep*model.nInc;
+		
+				
+					gui.vwp.rng=m*model.rotStep;
 					
 				
 					if(model.batchAnim){
+						int iy=ix%BB.length;
 						for(int ie=1;ie<model.numberOfElements;ie++)
-							model.element[ie].setB(BB[i][ie-1]);
+							model.element[ie].setB(BB[iy][ie-1]);
 					}
 					else{
-					String file=folder+model.animDataFile[i];
+					//String file=folder+model.animDataFile[i];
 					
-						model.loadFlux(file,nc,gui.vwp.rng);
+						int d=m%(model.nEnd);
+						String file=folder+"\\"+model.fileCommon+d+"."+model.fileExtension;
+						
+					model.loadFlux(file,nc,d*model.rotStep);
+								
+						int v=m%(Idq.length);
+						int ne=model.region[4].getFirstEl();
+						//ne=9832;
+						ne=nex;
+						model.element[ne].setB(model.getElementCenter(ne).times(0).add(new Vect(Idq[v][1],Idq[v][2]).times(6)));
 					}
 
 						if(m==0)
@@ -643,7 +673,9 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					
 					
 					
-					m++;
+					m+=model.nInc;
+					ix++;
+								
 
 				}
 				
@@ -863,7 +895,11 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				int nnx=model.animChosenNode;
 				boolean fillT=(nnx>0);
 			
-				String file=folder+model.animDataFile[0];
+			//	String file=folder+model.animDataFile[0];
+				//int d=i%(model.nEnd);
+				
+				String file=folder+"\\"+model.fileCommon+0+"."+model.fileExtension;
+
 				if(model.animDataCode==0)
 					model.loadFlux(file);
 				else
@@ -873,6 +909,31 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				int[] map=new int[1];
 				Vect[][] nv=new Vect[1][1];
 				//========
+				
+				boolean[] rc=new boolean[1+model.numberOfRegions];
+				
+				if(model.animRegs==null){
+					for(int ir=1;ir<=model.numberOfRegions;ir++)
+						rc[ir]=true;
+				}
+				else {
+
+					for(int ir:model.animRegs){
+					rc[ir]=true;
+				}
+				}
+				
+				boolean[] nc=new boolean[1+model.numberOfElements];
+				
+				for(int ir=1;ir<=model.numberOfRegions;ir++){
+					
+				if(rc[ir]){
+					for( int i=model.region[ir].getFirstEl();i<=model.region[ir].getLastEl();i++){
+						nc[i]=true;
+					}
+				}
+				}
+				
 				
 				if(model.batchAnim){
 				
@@ -888,24 +949,40 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 			
 				 nDefNodes=ix;
 	
+
+			//	nv=new Vect[model.nAnimSteps][];
 				
 
-				nv=new Vect[ix][Lt];
 				
-				for(int i=0;i<model.nAnimSteps;i++){
+				 ix=0;
+
+				for(int i=model.nBegin;i<=model.nEnd;i+=model.nInc){
+	
+				//	file=folder+model.animDataFile[i];
+					int d=i%(model.nEnd);
 					
-					file=folder+model.animDataFile[i];
+					file=folder+"\\"+model.fileCommon+d+"."+model.fileExtension;
 
 					if(model.animDataCode==0){
-						model.loadFlux(file);
-						model.setNodalScalar(0);
-					}
-					else
-						model.loadNodalField(file,model.animDataCode);
-					
-					for(int j=0;j<nDefNodes;j++)
-						nv[j][i]=model.node[map[j]].getNodalVect(vmode);
 						
+						nv=new Vect[model.nAnimSteps][model.numberOfElements];
+						
+						model.loadFlux(file,nc,d*model.rotStep);
+					//	model.setNodalScalar(0);
+						nv[ix]=new Vect[model.numberOfElements];
+						for(int ie=1;ie<model.numberOfElements;ie++)
+						nv[ix][ie-1]=model.element[ie].getB();
+		
+					}
+					else{
+						model.loadNodalField(file,model.animDataCode);
+					nv[ix]=new Vect[nDefNodes];
+					for(int j=0;j<nDefNodes;j++)
+						nv[ix][j]=model.node[map[j]].getNodalVect(vmode);
+					}
+					
+					
+					ix++;
 				
 				}
 							
@@ -917,7 +994,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 				for(int i=0;i<Lt;i++)
 					for(int j=0;j<nDefNodes;j++){
-						double p=nv[j][i].norm();
+						double p=nv[i][j].norm();
 						if(p>vm) vm=p;
 						
 
@@ -936,34 +1013,49 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					{
 				
 					
-						Main.wait(50);
+		Main.wait(model.animTD);
 			
 						
 					if(fillT)
-						if(m>=K*Lt) break;
-						
+						if(m>=K*model.nEnd) break;
+					
+					int i=m%model.nEnd;
 				
-				
-						
-						int i=m%Lt;
-						
-						gui.vwp.rng=.5*m;
-						gui.vwp.tfX2.setText(Double.toString(i*.5));
+						gui.vwp.rng=m*model.rotStep;
+					
+						gui.vwp.tfX2.setText(Double.toString(gui.vwp.rng));
 			
+						
+						
+						int d=i%(model.nEnd);
+					
+						 file=folder+"\\"+model.fileCommon+d+"."+model.fileExtension;
 					
 						if(model.batchAnim)
 						{
-							for(int j=0;j<nDefNodes;j++)
-								model.node[map[j]].setNodalVect(vmode,nv[j][i]);
-							model.setNodalScalar(vmode+2);
 							
-							gui.vwp.paintNodalScalar(model);
+							
+							if(model.animDataCode==0){
+								model.loadFlux(file,nc,gui.vwp.rng);
+								model.setNodalScalar(0);
+
+							}
+							else 
+							{
+								for(int j=0;j<nDefNodes;j++)								
+									model.node[map[j]].setNodalVect(vmode,nv[i][j]);
+							 model.loadNodalField(file,vmode);
+							 model.setNodalScalar(vmode+2);
+							}
 						
+					
 						}
 						else{
-							file=folder+model.animDataFile[i];
+							//file=folder+model.animDataFile[i];
+				
+					
 							if(model.animDataCode==0){
-								model.loadFlux(file);
+								model.loadFlux(file,nc,gui.vwp.rng);
 								model.setNodalScalar(0);
 
 							}
@@ -972,14 +1064,16 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 							 model.loadNodalField(file,vmode);
 							model.setNodalScalar(vmode+2);
 							}
-							
-							gui.vwp.paintNodalScalar(model);
+						
 						}
+						
+						
+						
+						gui.vwp.paintNodalScalar(model);
 						
 						
 						Transform3D tr=new Transform3D();
 						tr.rotZ(gui.vwp.rng*PI/180);
-
 
 						for(int k=1;k<=model.numberOfRegions;k++){
 							if(model.region[k].rotor)
@@ -996,7 +1090,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 						
 					
 		
-						m++;
+						m+=model.nInc;
 
 					}
 				}
@@ -1166,13 +1260,11 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 						
 					if(fillT)
 						if(m>=K*Lt) break;
-						
+					
+					int i=m%Lt;	
 				
-				
+					gui.vwp.rng=i*model.rotStep*model.nInc;
 						
-						int i=m%Lt;
-						
-						gui.vwp.rng=model.rotStep*i;
 						gui.vwp.tfX2.setText(df.format(gui.vwp.rng));
 			
 					
@@ -1206,10 +1298,10 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 
 						for(int k=1;k<=model.numberOfRegions;k++){
-							util.pr(k);
-						//	if(model.region[k].rotor){
+							//util.pr(k);
+							if(model.region[k].rotor){
 								gui.vwp.surfFacets[k].setTransform(tr);
-							//}
+							}
 						}
 		
 						m++;

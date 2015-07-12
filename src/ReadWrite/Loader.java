@@ -224,9 +224,12 @@ public boolean loadFlux(Model model,String fluxFilePath, double angDeg,boolean[]
 boolean rotating=true;
 	if(angDeg==0) rotating=false;
 	
+
 	Mat R=new Mat();
 	if(rotating){
 
+	//	angDeg=angDeg-(int)(angDeg/360.0);
+		
 		R=util.rotMat2D(-angDeg*Math.PI/180);
 	}
 	
@@ -257,8 +260,6 @@ boolean rotating=true;
 				Vect B1=new Vect(dim);
 		
 		
-		
-		
 
 			for(int j=0;j<dim;j++)
 				B1.el[j]=Double.parseDouble(scr.next());
@@ -268,7 +269,6 @@ boolean rotating=true;
 			{
 				B1=new Vect(dim);
 			}
-			//********************
 
 			model.element[i].setB(B1);
 			
@@ -592,7 +592,7 @@ boolean rotating=true;
 			
 			line=br.readLine();
 			line=br.readLine();
-			String fileCommon=br.readLine();
+			model.fileCommon=br.readLine();
 			
 			line=br.readLine();
 			line=br.readLine();
@@ -632,7 +632,7 @@ boolean rotating=true;
 			
 			line=br.readLine();
 			line=br.readLine();
-			String extension=br.readLine();
+			model.fileExtension=br.readLine();
 			
 			
 			br.readLine();
@@ -679,7 +679,7 @@ boolean rotating=true;
 				model.chosenNodeCoord=br.readLine();
 
 			
-			
+		/*	
 			String[] animFile=new String[nSteps];
 			
 
@@ -699,7 +699,7 @@ boolean rotating=true;
 					}
 				}
 					
-	model.animDataFile=animFile;
+	model.animDataFile=animFile;*/
 	
 				
 		}
@@ -837,11 +837,11 @@ boolean rotating=true;
 					//JOptionPane.showMessageDialog(null, msg," ", JOptionPane. INFORMATION_MESSAGE);
 				}
 			}
-			else if(nx!=model.numberOfNodes) {/*
+			else if(nx!=model.numberOfNodes) {
 				String msg="Nodal field file does not match the mesh";
 				throw new IllegalArgumentException(msg);
 				//JOptionPane.showMessageDialog(null, msg," ", JOptionPane. INFORMATION_MESSAGE);
-			*/}
+			}
 
 	
 			double sn2=0,smax2=0,smin2=0;
@@ -1204,5 +1204,83 @@ boolean rotating=true;
 
 		return v;
 	}
+	
+	public double[] loadArray(){
+		String file=util.getFile();
+		if(file==null || file.equals("") )  throw new NullPointerException("file not found.");
+		return loadArray(file);
+	}
+
+	public double[] loadArray(String arrayPath){
+
+		try{
+			FileReader fr=new FileReader(arrayPath);
+			BufferedReader br = new BufferedReader(fr);
+			String line;
+			String s;
+			String[] sp;
+
+			int N=100000;
+			
+			double[] x1=new double[N];
+			
+			int i=0;
+			line=br.readLine();
+			while(line!=null){
+				if(i>N) break;
+				x1[i++]=Double.parseDouble(line);
+				line=br.readLine();
+				
+			}
+
+			double[] x=Arrays.copyOf(x1, i);
+			
+				return x;
+				
+		}
+		catch(IOException e){
+			e.printStackTrace();//System.err.println("Error in loading model file.");
+		}
+
+
+		return null;
+	}	
+
+	public double[][] loadArrays(int n, int m,String arrayPath){
+
+		try{
+			FileReader fr=new FileReader(arrayPath);
+			BufferedReader br = new BufferedReader(fr);
+			String line;
+			String s;
+			String[] sp;
+
+		
+			
+			double[][] A=new double[n][m];
+			
+			for(int i=0;i<n;i++){
+				line=br.readLine();
+				if(line==null) continue;
+				double[] x=getCSV(line);
+				for(int j=0;j<m;j++)
+					A[i][j]=x[j];
+		
+				
+				
+			}
+
+			
+				return A;
+				
+		}
+		catch(IOException e){
+			e.printStackTrace();//System.err.println("Error in loading model file.");
+		}
+
+
+		return null;
+	}
+
  
 }

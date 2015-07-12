@@ -345,7 +345,6 @@ public class util {
 	
 	public static Mat rotMat2D(double rad){
 
-
 	 	Mat M=new Mat(2,2);
 		M.el[0][0]=cos(rad);
 		M.el[1][1]=	M.el[0][0];

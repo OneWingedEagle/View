@@ -1,13 +1,13 @@
-data file type: 2
+data file type: 1
 
 mesh file
-C:\Works\proj8\dispTotHalf\bun.txt
+C:\Works\proj8\forcesMotMSz3Full\bun.txt
 
 data folder:
-C:\Works\proj8\dispTotHalf
+C:\Works\proj8\forcesMotMSz3Full
 
 file name common part:
-disp
+force
 
 temporal: 0,1799,10
 
@@ -16,12 +16,12 @@ txt
 
 animation mode: 1
 
-batch mode: f
+batch mode: t
 
-timedelay: 20
+timedelay: 10
 
 regions: 
-all
+8
 
 rotstep:0.05
 

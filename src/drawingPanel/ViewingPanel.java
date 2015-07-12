@@ -78,7 +78,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	public int nChosenRegion=0, nBoundary = 6;
 	public int decimal = 3, numberOfElements, numberOfRegions;
 	public double  scaleFactor,vScale0=1,vScale,vScalefact=1,moveStep0,moveStep,Vmin,Vmax,rng=0;
-	private Vect camEye,camEye0=new Vect(-.2,-1,1), target,target0=new Vect(3),upVect,upVect0=new Vect(0,0,1);
+	private Vect camEye,camEye0=new Vect(.3,.2,-1), target,target0=new Vect(3),upVect,upVect0=new Vect(0,1,0);
 	public boolean meshDrawn = false,meshLoaded,axesShown,meshShown,fieldShown,runMotor;
 	public boolean[] setRegion;
 	
