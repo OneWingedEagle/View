@@ -1,10 +1,10 @@
 data file type: 0
 
 mesh file
-C:\Works\proj8\flux-0-1800CalfineOK\bun.txt
+C:\Works\proj8\flux-0-1800allAir\bun.txt
 
 data folder:
-C:\Works\proj8\flux-0-1800CalfineOK
+C:\Works\proj8\flux-0-1800allAir
 
 file name common part:
 flux
