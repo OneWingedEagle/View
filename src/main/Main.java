@@ -375,7 +375,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 			
 			
 			if(model.numberOfElements>30000)
-				wait(4000);
+				wait(2000);
 			
 			if(model.animRegs!=null && model.animRegs.length==0){
 			model.animRegs=new int[model.numberOfRegions];
@@ -690,6 +690,235 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 	}
 
+	public void animateShapey()  {
+
+		Thread tr = new Thread() {
+			public void run() {
+				interaction=1;
+			
+				boolean[] rc=new boolean[1+model.numberOfRegions];
+				
+				if(model.animRegs==null){
+					for(int ir=1;ir<=model.numberOfRegions;ir++)
+						rc[ir]=true;
+				}
+				else {
+
+					for(int ir:model.animRegs){
+					rc[ir]=true;
+				}
+				}
+				
+				boolean[] nc=new boolean[1+model.numberOfNodes];
+				
+				for(int ir=1;ir<=model.numberOfRegions;ir++)
+				if(rc[ir]){
+					if(gui.vwp.surfFacets[ir]==null ||gui.vwp.surfFacets[ir].surfVertNumb==null ) continue;
+					for(int j=0;j<gui.vwp.surfFacets[ir].surfVertNumb.length;j++){
+						nc[gui.vwp.surfFacets[ir].surfVertNumb[j]]=true;
+					}
+				}
+					
+		
+
+				int Lt=model.nAnimSteps;
+		
+				boolean vel=(model.animMode==4);
+				if(vel) model.batchAnim=true;
+				
+			
+				int K=1;
+				
+				int vmode=model.animDataCode;
+			
+				
+				String folder=model.animDataFolder+"\\";
+				
+				Vect T=new Vect(K*Lt);
+				
+				
+				int nnx=model.animChosenNode;
+				int comp=model.animChonenNodeComp;
+				
+				boolean fillT=(nnx>0);
+			
+				//String file=folder+model.animDataFile[0];
+				String file=folder+"\\"+model.fileCommon+0+"."+model.fileExtension;
+
+							
+				model.loadNodalField(file,model.animDataCode,nc);
+				
+				int nDefNodes=1;
+				int[] map=new int[1];
+				Vect[][] nv=new Vect[1][1];
+				//========
+				
+				if(model.batchAnim){
+				
+				int ix=0;
+				map=new int[1+model.numberOfNodes];
+					
+		
+				for(int i=1;i<=model.numberOfNodes;i++){
+					
+				
+					if(model.node[i].isDeformable())
+					{
+						map[ix]=i;
+						ix++;
+						}
+				}
+			
+				 nDefNodes=ix;
+
+
+				nv=new Vect[Lt][nDefNodes];
+				ix=0;
+			//	for(int i=0;i<model.nAnimSteps;i++){
+				for(int i=model.nBegin;i<=model.nEnd;i+=model.nInc){
+					//String file=folder+model.animDataFile[i];
+					int d=i%(model.nEnd);
+					
+					//file=folder+model.animDataFile[i];
+
+					file=folder+"\\"+model.fileCommon+d+"."+model.fileExtension;
+
+					model.loadNodalField(file,model.animDataCode,nc);
+					
+					for(int j=0;j<nDefNodes;j++){
+						nv[ix][j]=model.node[map[j]].getNodalVect(vmode);
+			
+					}
+						
+					ix++;
+				
+				}
+						
+				if(vel)	{
+					
+					 double rdt=1.0/model.dt;
+									 
+						Vect[][] veloc=new Vect[nDefNodes][Lt];
+					
+						for(int i=1;i<Lt;i++)
+							for(int j=0;j<nDefNodes;j++){
+								
+									veloc[i][j]=nv[i][j].sub(nv[i-1][j]).times(rdt);
+							}
+
+						
+					
+						
+						for(int j=0;j<nDefNodes;j++)
+							veloc[0][j]= veloc[Lt-1][j].deepCopy();
+						
+						
+						nv=veloc;
+						
+						
+							}
+				
+
+
+				
+				double vm=0;
+
+				for(int i=0;i<Lt;i++)
+					for(int j=0;j<nDefNodes;j++){
+						double p=nv[i][j].norm();
+						if(p>vm) vm=p;
+						
+
+					}
+
+				model.uMax=vm;
+				}
+
+			
+				
+
+				int ix=0;
+				int iy=0;
+				int m=0;
+				while(true){
+					{
+				
+				Main.wait(model.animTD);
+			
+						
+					if(fillT)
+						if(m>=K*Lt) break;
+					
+					int i=m%model.nEnd;	
+				
+					gui.vwp.rng=m*model.rotStep;
+						
+						gui.vwp.tfX2.setText(df.format(gui.vwp.rng));
+			
+						iy=ix%nv.length;
+						
+						if(model.batchAnim)
+						{
+							for(int j=0;j<nDefNodes;j++)
+								model.node[map[j]].setNodalVect(vmode,nv[iy][j]);
+							
+						
+						}
+						else{
+							//file=folder+model.animDataFile[i];
+							 file=folder+"\\"+model.fileCommon+i+"."+model.fileExtension;
+
+util.pr(77);
+							model.loadNodalField(file,vmode,nc);
+							
+						}
+						
+						if(m==0) {
+							gui.vwp.Vmax=1e2*model.uMax;
+							gui.vwp.setSlider();
+						}
+						gui.vwp.deformMesh(model);
+						
+					//	gui.vwp.deformMesh(model);
+
+					
+						if(fillT){
+						T.el[m]=model.node[nnx].getNodalVect(vmode).el[comp];
+						}
+						
+						Transform3D tr=new Transform3D();
+						tr.rotZ(gui.vwp.rng*PI/180);
+
+
+						for(int k=1;k<=model.numberOfRegions;k++){
+							//util.pr(k);
+							if(model.region[k].rotor){
+								gui.vwp.surfFacets[k].setTransform(tr);
+							}
+						}
+		
+						m+=model.nInc;
+
+						ix++;
+					}
+				}
+				
+				if(vmode==2)
+					T.timesVoid(1e9);
+				
+				util.plot(T);
+				
+				T.show();
+				
+			}
+
+
+		};
+
+		tr.start();
+
+	}
+	
 
 	public void animateShape()  {
 
@@ -699,7 +928,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				//gui.vwp.runMotor=!gui.vwp.runMotor;			
 
 				//int n0=11018;
-				interaction=1;
+				interaction=2;
 				
 				
 				
@@ -730,7 +959,9 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				boolean fillT=(nnx>0);
 
 				
-				String file=folder+model.animDataFile[0];
+				//String file=folder+model.animDataFile[0];
+				String file=folder+"\\"+model.fileCommon+0+"."+model.fileExtension;
+
 							
 				model.loadNodalField(file,model.animDataCode);
 			//	model.loadNodalField(file,model.animDataCode,n0);
@@ -756,19 +987,25 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 	
 				
 
-				nv=new Vect[ix][Lt];
+				nv=new Vect[Lt][nDefNodes];
 				
-				for(int i=0;i<model.nAnimSteps;i++){
+				ix=0;
+				
+				for(int i=model.nBegin;i<=model.nEnd;i+=model.nInc){
 					
-					file=folder+model.animDataFile[i];
+					int d=i%model.nEnd;
+					//file=folder+model.animDataFile[i];
+					 file=folder+"\\"+model.fileCommon+d+"."+model.fileExtension;
+
 
 					model.loadNodalField(file,model.animDataCode);
 
 					
 					for(int j=0;j<nDefNodes;j++)
-						nv[j][i]=model.node[map[j]].getNodalVect(vmode);
+						nv[ix][j]=model.node[map[j]].getNodalVect(vmode);
 						
-				
+			
+					ix++;
 				}
 							
 			
@@ -778,7 +1015,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 				for(int i=0;i<Lt;i++)
 					for(int j=0;j<nDefNodes;j++){
-						double p=nv[j][i].norm();
+						double p=nv[i][j].norm();
 						if(p>vm) vm=p;
 						
 
@@ -792,6 +1029,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				gui.vwp.Vmax=1e-2*model.uMax;
 				gui.vwp.setSlider();
 				
+				int ix=0;
 				int m=0;
 				while(true){
 					{
@@ -803,32 +1041,29 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					if(fillT)
 						if(m>=K*Lt) break;
 						
-				
-				
-						
-						int i=m%Lt;
+			
+						int i=m%model.nEnd;
 					
 						gui.vwp.tfX2.setText(Integer.toString(i));
 			
 					
 						if(model.batchAnim)
 						{
+							int iy=ix%nv.length;
+							
 							for(int j=0;j<nDefNodes;j++)
-								model.node[map[j]].setU(nv[j][i]);
+								model.node[map[j]].setU(nv[iy][j]);
 						}
 						else{
-							file=folder+model.animDataFile[i];
-
-							//String file2="C:\\JavaProjects\\proj8\\dispMot8thTotalDampa1.1e-6.a2.1e-6SmallLamb\\disp"+(i*1)+".txt";
-							//model.filePath=file;
+							//file=folder+model.animDataFile[i];
 							
+							 file=folder+"\\"+model.fileCommon+i+"."+model.fileExtension;
+
+
 								
 							model.loadNodalField(file, vmode);
 							//model.loadNodalField(file2,model.animDataCode,n0);
-							
-							//String file3="C:\\JavaProjects\\proj8\\dispMot8thMagTotalSmallLambAssembled4\\disp"+(i*1)+".txt";
-						//	model.writeNodalField(file3,2);
-
+	
 						}
 						
 						if(fillT){
@@ -848,14 +1083,14 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 						for(int k=1;k<=model.numberOfRegions;k++){
 							if(model.region[k].rotor)
 								gui.vwp.surfFacets[k].setTransform(tr);
-							//if(k!=1)
-							//gui.vwp.surfFacets[k].deform(model);
+
 
 
 						}
 		
-						m++;
+						m+=model.nInc;
 
+						ix++;
 					}
 				}
 				
@@ -1164,7 +1399,9 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				
 				boolean fillT=(nnx>0);
 			
-				String file=folder+model.animDataFile[0];
+				//String file=folder+model.animDataFile[0];
+				String file=folder+"\\"+model.fileCommon+0+"."+model.fileExtension;
+
 							
 				model.loadNodalField(file,model.animDataCode,nc);
 				
@@ -1192,19 +1429,25 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 				 nDefNodes=ix;
 
 
-				nv=new Vect[ix][Lt];
-				
-				for(int i=0;i<model.nAnimSteps;i++){
+				nv=new Vect[Lt][nDefNodes];
+				ix=0;
+			//	for(int i=0;i<model.nAnimSteps;i++){
+				for(int i=model.nBegin;i<=model.nEnd;i+=model.nInc){
+					//String file=folder+model.animDataFile[i];
+					int d=i%(model.nEnd);
 					
-					file=folder+model.animDataFile[i];
+					//file=folder+model.animDataFile[i];
+
+					file=folder+"\\"+model.fileCommon+d+"."+model.fileExtension;
 
 					model.loadNodalField(file,model.animDataCode,nc);
 					
 					for(int j=0;j<nDefNodes;j++){
-						nv[j][i]=model.node[map[j]].getNodalVect(vmode);
+						nv[ix][j]=model.node[map[j]].getNodalVect(vmode);
 			
 					}
 						
+					ix++;
 				
 				}
 						
@@ -1217,14 +1460,14 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 						for(int i=1;i<Lt;i++)
 							for(int j=0;j<nDefNodes;j++){
 								
-									veloc[j][i]=nv[j][i].sub(nv[j][i-1]).times(rdt);
+									veloc[i][j]=nv[i][j].sub(nv[i-1][j]).times(rdt);
 							}
 
 						
 					
 						
 						for(int j=0;j<nDefNodes;j++)
-							veloc[j][0]= veloc[j][Lt-1].deepCopy();
+							veloc[0][j]= veloc[Lt-1][j].deepCopy();
 						
 						
 						nv=veloc;
@@ -1239,7 +1482,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 				for(int i=0;i<Lt;i++)
 					for(int j=0;j<nDefNodes;j++){
-						double p=nv[j][i].norm();
+						double p=nv[i][j].norm();
 						if(p>vm) vm=p;
 						
 
@@ -1251,6 +1494,8 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 			
 				
 
+				int ix=0;
+				int iy=0;
 				int m=0;
 				while(true){
 					{
@@ -1261,22 +1506,25 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 					if(fillT)
 						if(m>=K*Lt) break;
 					
-					int i=m%Lt;	
+					int i=m%model.nEnd;	
 				
-					gui.vwp.rng=i*model.rotStep*model.nInc;
+					gui.vwp.rng=m*model.rotStep;
 						
 						gui.vwp.tfX2.setText(df.format(gui.vwp.rng));
 			
-					
+						iy=ix%nv.length;
+						
 						if(model.batchAnim)
 						{
 							for(int j=0;j<nDefNodes;j++)
-								model.node[map[j]].setNodalVect(vmode,nv[j][i]);
+								model.node[map[j]].setNodalVect(vmode,nv[iy][j]);
 							
 						
 						}
 						else{
-							file=folder+model.animDataFile[i];
+							//file=folder+model.animDataFile[i];
+							 file=folder+"\\"+model.fileCommon+i+"."+model.fileExtension;
+
 
 							model.loadNodalField(file,vmode,nc);
 							
@@ -1304,8 +1552,9 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 							}
 						}
 		
-						m++;
+						m+=model.nInc;
 
+						ix++;
 					}
 				}
 				

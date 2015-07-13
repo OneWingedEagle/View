@@ -45,7 +45,7 @@ public class Model{
 	animMode,nBegin,nEnd,nInc,animTD,animChosenNode,animChonenNodeCom;
 	public int[] animRegs;
 	public double dt,alpha1,alpha2,r1,r2,rm,TrqZ,height=.06,cpb=1,rotStep;
-	public String[] animDataFile;
+	//public String[] animDataFile;
 	public String eddyFolder,filePath,meshFilePath,dataFilePath,fileCommon,fileExtension,
 	fluxFilePath,eddyFilePath,fluxFolder,animDataFolder,chosenNodeCoord;
 

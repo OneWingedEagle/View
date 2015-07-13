@@ -1,10 +1,10 @@
 data file type: 1
 
 mesh file
-C:\Works\proj8\forcesMotMSz3Full\bun.txt
+C:\Works\proj8\forces2DMSz3Distilled\bun.txt
 
 data folder:
-C:\Works\proj8\forcesMotMSz3Full
+C:\Works\proj8\forces2DMSz3Distilled
 
 file name common part:
 force
@@ -21,7 +21,7 @@ batch mode: t
 timedelay: 10
 
 regions: 
-8
+6
 
 rotstep:0.05
 

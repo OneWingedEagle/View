@@ -9,16 +9,16 @@ C:\Works\proj8\dispMagHalf
 file name common part:
 disp
 
-temporal: 0,1799,10
+temporal: 0,1799,100
 
 extension
 txt
 
 animation mode: 1
 
-batch mode: f
+batch mode: t
 
-timedelay: 20
+timedelay: 2
 
 regions: 
 all
