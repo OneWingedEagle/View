@@ -1,15 +1,15 @@
 data file type: 0
 
 mesh file
-C:\Works\proj8\flux-0-1800CalfineFull\bun.txt
+C:\Works\MagFem\fluxesGearRotOut\bgearView.txt
 
 data folder:
-C:\Works\proj8\flux-0-1800CalfineFull
+C:\Works\MagFem\fluxesGearRotOut
 
 file name common part:
 flux
 
-temporal: 0,1800,10
+temporal: 0,360,1
 
 extension
 txt
@@ -21,9 +21,9 @@ batch mode: t
 timedelay: 20
 
 regions: 
-all
+1,2
 
-rotstep:.05
+rotstep:1
 
 dt:5.55e-6
 

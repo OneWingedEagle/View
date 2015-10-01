@@ -1,31 +1,33 @@
 data file type: 2
 
 mesh file
-C:\JavaProjects\proj8\dispTotHalf\bun.txt
+C:\Works\proj8\dispMagHalf3600\bun.txt
 
 data folder:
-C:\JavaProjects\proj8\dispTotHalf
+C:\Works\proj8\dispMagHalf3600
 
 file name common part:
 disp
 
-temporal: 0,1799,1
+temporal: 0,3600,10
 
 extension
 txt
 
-animation mode: 3
+animation mode: 1
 
-timedelay: 40
+batch mode: t
+
+timedelay: 50
 
 regions: 
-2
+all
 
 rotstep:0.05
 
 dt:5.55555e-6
 
-node:0
+node:-1
 comp:1
 .092 0 0
 

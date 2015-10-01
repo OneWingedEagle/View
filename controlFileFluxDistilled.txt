@@ -16,12 +16,12 @@ txt
 
 animation mode: 0
 
-batch mode: f
+batch mode: t
 
 timedelay: 20
 
 regions: 
-all
+2,3,6
 
 rotstep:.05
 

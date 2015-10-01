@@ -1,10 +1,10 @@
 data file type: 1
 
 mesh file
-C:\Works\proj8\forces2DMagDistilled\bun.txt
+C:\Works\proj8\forces2DMSz3Distilled\bun.txt
 
 data folder:
-C:\Works\proj8\forces2DMagDistilled
+C:\Works\proj8\forces2DMSz3Distilled
 
 file name common part:
 force
@@ -16,9 +16,9 @@ txt
 
 animation mode: 1
 
-batch mode: f
+batch mode: t
 
-timedelay: 2
+timedelay: 10
 
 regions: 
 6

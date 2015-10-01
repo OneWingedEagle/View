@@ -45,8 +45,8 @@ public class Model{
 	animMode,nBegin,nEnd,nInc,animTD,animChosenNode,animChonenNodeCom;
 	public int[] animRegs;
 	public double dt,alpha1,alpha2,r1,r2,rm,TrqZ,height=.06,cpb=1,rotStep;
-	public String[] animDataFile;
-	public String eddyFolder,filePath,meshFilePath,dataFilePath,
+	//public String[] animDataFile;
+	public String eddyFolder,filePath,meshFilePath,dataFilePath,fileCommon,fileExtension,
 	fluxFilePath,eddyFilePath,fluxFolder,animDataFolder,chosenNodeCoord;
 
 	public Model(){}
@@ -193,10 +193,11 @@ public class Model{
 	public boolean loadFlux(String fluxFilePath,double angDeg){
 
 		boolean b=loader.loadFlux(this,fluxFilePath,angDeg);
-		if(b)
-			this.setNodalScalar(0);
+		/*if(b)
+			this.setNodalScalar(0);*/
 		return b;
 	}
+
 
 	public boolean loadPotential(String file){
 
@@ -908,9 +909,11 @@ public class Model{
 	}
 
 	public void setNodalScalar(int mode){
-
+	
 		double c=1.0/nElVert;
 		double eps=1.0e-6;
+
+		
 		int[] count=new int[this.numberOfNodes+1];
 		double[] str=new double[this.numberOfNodes+1];
 		nodalScalarMax=-1e40;
@@ -922,11 +925,12 @@ public class Model{
 
 		if(mode<2 || mode==10){
 
-		for(int ir=1;ir<=this.numberOfRegions;ir++){
+		for(int ir=1;ir<=this.numberOfRegions-2;ir++){
 			for(int i=this.region[ir].getFirstEl();i<=this.region[ir].getLastEl();i++){
 				if(mode==0){
 					sv=element[i].getB();
 					se=sv.norm();
+					
 				}
 				
 				else if(mode==1)sv=element[i].getStress();

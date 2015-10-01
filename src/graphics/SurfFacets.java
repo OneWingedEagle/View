@@ -16,10 +16,10 @@ import math.Vect;
 import math.util;
 import fem.EdgeSet;
 import fem.Model;
+
 import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.GeometryArray;
-
 import javax.media.j3d.Group;
 import javax.media.j3d.IndexedLineArray;
 import javax.media.j3d.IndexedQuadArray;
@@ -27,6 +27,7 @@ import javax.media.j3d.IndexedTriangleArray;
 import javax.media.j3d.LineArray;
 import javax.media.j3d.LineAttributes;
 import javax.media.j3d.Material;
+import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.QuadArray;
 import javax.media.j3d.RenderingAttributes;
 import javax.media.j3d.Shape3D;
@@ -69,6 +70,7 @@ public class SurfFacets extends TransformGroup{
 	public Vect[] V;
 	public double vScale=1;
 	public int[] neNumb;
+	private PolygonAttributes pa;
 
 	int ii;
 	int dim,nr,arrMode,fieldMode;
@@ -84,6 +86,11 @@ public class SurfFacets extends TransformGroup{
 		this.showRegion=true;
 		this.showRegFace=true;
 		this.showRegEdge=true;
+		
+
+		pa=new PolygonAttributes();
+		pa.setPolygonOffsetFactor(1.f);
+		pa.setPolygonOffset(1e-12f);
 		
 		facetRA = new RenderingAttributes( );
 		facetRA.setCapability(RenderingAttributes.ALLOW_VISIBLE_WRITE);
@@ -103,6 +110,8 @@ public class SurfFacets extends TransformGroup{
 		this.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 		this.setCapability(Group.ALLOW_CHILDREN_WRITE);
 		this.nr=ir;
+		
+		
 
 		util.pr("Now drawing mesh...");
 		this.elCode=model.elCode;
@@ -240,7 +249,7 @@ public class SurfFacets extends TransformGroup{
 		
 				Color3f edCol=new Color3f(color.darker().darker().darker());
 
-				LineAttributes la=new LineAttributes(1.4f,LineAttributes.PATTERN_SOLID,false);
+				LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 				ColoringAttributes ca=new  ColoringAttributes(edCol, ColoringAttributes.SHADE_GOURAUD);
 
 				ca.setCapability(ColoringAttributes.ALLOW_COLOR_WRITE);
@@ -273,7 +282,10 @@ public class SurfFacets extends TransformGroup{
 
 				facetApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
 				
-
+				facetApp.setPolygonAttributes(pa);
+				
+				edgeApp.setPolygonAttributes(pa);
+				
 				this.surfFacets=new Shape3D(this.facet3angh,facetApp);
 				this.surfEdges=new Shape3D(this.allEdgeh,edgeApp);
 
@@ -401,7 +413,7 @@ public class SurfFacets extends TransformGroup{
 				
 				this.allEdgeh.setCoordinateIndices(0, coordIndices);
 
-				LineAttributes la=new LineAttributes(1.4f,LineAttributes.PATTERN_SOLID,false);
+				LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 				
 				
 				Color3f edCol=new Color3f(color.darker().darker());
@@ -441,6 +453,10 @@ public class SurfFacets extends TransformGroup{
 
 				edgeApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
 				facetApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
+				
+				facetApp.setPolygonAttributes(pa);
+				
+				edgeApp.setPolygonAttributes(pa);
 
 
 				this.surfFacets=new Shape3D(this.faceth,facetApp);
@@ -715,7 +731,7 @@ public class SurfFacets extends TransformGroup{
 			this.allEdge.setColor(2*i+1,edCol);
 		}
 
-		LineAttributes la=new LineAttributes(1.2f,LineAttributes.PATTERN_SOLID,false);
+		LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 
 		TransparencyAttributes t_attr1,t_attr2,t_attr3;
 		t_attr1 =new TransparencyAttributes(TransparencyAttributes.NONE,.0f);
@@ -762,11 +778,13 @@ public class SurfFacets extends TransformGroup{
 
 		boolean[] edgeCounted=new boolean[nEdge+1];
 		int[] indx=new int[nEdge+1];
+		
 		for(int i=model.region[ir].getFirstEl();i<=model.region[ir].getLastEl();i++){
+			
 			int[] edgeNumb=model.element[i].getEdgeNumb();
+
 			for(int j=0;j<model.nElEdge;j++){
 				int ne=edgeNumb[j];
-
 				if(indx[ne]==edgeElement[ne].length-1)
 					edgeElement[ne].extend(ns);
 
@@ -795,7 +813,7 @@ public class SurfFacets extends TransformGroup{
 					int ep=edgeNumb[p];
 					if(ep==i) continue;
 					if(model.edge[ep].endNodeNumber[0]==n1) {
-						nn[jx++]=model.edge[ep].endNodeNumber[1];
+					nn[jx++]=model.edge[ep].endNodeNumber[1];
 					}
 					else{
 						if(model.edge[ep].endNodeNumber[1]==n1) 
@@ -809,13 +827,68 @@ public class SurfFacets extends TransformGroup{
 			for(int p=1;p<nn.length;p++)
 				if(nn[p]!=nn[p-1]) q++;
 
-			if(q==indx[i]){
+		if(q==indx[i])
+			
+			{
 			
 				onSurf[i]=true;
 				nx++;
 			}
 
 		}
+		
+
+
+		
+/*		for(int i=1;i<=nEdge;i++){
+
+
+			
+		
+			for(int j=0;j<edgeElement[i].length && edgeElement[i].el[j]>0;j++){
+				
+				int numbNeighbor=0;
+				
+				int e1=edgeElement[i].el[j];
+	
+				int[] ne1=model.element[e1].getEdgeNumb();
+				
+				for(int jj=j+1;jj<edgeElement[i].length && edgeElement[i].el[jj]>0;jj++){
+					
+					int e2=edgeElement[i].el[jj];
+					int[] ne2=model.element[e2].getEdgeNumb();
+
+					boolean hasCommonEdges=false;
+					
+					for(int u=0;u<model.nElEdge && ne1[u]!=i && !hasCommonEdges;u++){
+						for(int v=0;v<model.nElEdge && ne2[v]!=i&& !hasCommonEdges;v++){
+							if(ne1[u]==ne2[v]) {
+								hasCommonEdges=true;
+							}
+						}
+					}
+					
+					if(hasCommonEdges)
+						numbNeighbor++;
+					
+				}
+
+				
+					if(numbNeighbor<2){
+						onSurf[i]=true;
+						nx++;
+						break;
+						}
+				
+			
+			}
+		
+		
+				
+				
+			}*/
+		
+		
 
 
 		this.nSurfEdges=nx;
@@ -922,7 +995,7 @@ public class SurfFacets extends TransformGroup{
 			int nnx=this.surfVertNumb[i];
 
 			Vect v=model.node[nnx].getCoord();
-
+			
 			if(model.node[nnx].u!=null)
 				v= v.add(model.node[nnx].u.times(this.defScale));
 			coords[i]=new P3f(v);
@@ -934,7 +1007,7 @@ public class SurfFacets extends TransformGroup{
 		this.faceth.setCapability(GeometryArray.ALLOW_COORDINATE_WRITE);
 		this.faceth.setCapability(GeometryArray.ALLOW_NORMAL_WRITE);
 
-		
+
 	
 		int[] normalIndices1 =new int[4*this.nSurfQuads];
 
@@ -963,7 +1036,10 @@ public class SurfFacets extends TransformGroup{
 			Vect v2=v[2].sub( v[1]);
 			Vect vn=v1.cross(v2);
 
-			vn.normalize();
+			if(vn.norm()==0)
+				vn=new Vect(0,0,1);
+			else
+				vn.normalize();
 
 			/* for(int m=0;m<3;m++)
 				 vn.el[m]=(int)(vn.el[m]*100)*0.01;*/
@@ -999,8 +1075,9 @@ public class SurfFacets extends TransformGroup{
 		}		
 		
 		V3f[] normals=new V3f[set.size()];
-		for(int j=0;j<un.size();j++)
+		for(int j=0;j<un.size();j++){
 			normals[j]=un.get(j);
+		}
 		
 		int[] normalIndices =new int[4*this.nSurfQuads];
 		for(int i=0;i<normalIndices.length;i++)
@@ -1013,6 +1090,8 @@ public class SurfFacets extends TransformGroup{
 				colors[i]=cl3;
 			}
 
+
+			
 			this.faceth.setCoordinates(0, coords);
 			this.faceth.setNormals(0, normals);
 			this.faceth.setColors(0, colors);
@@ -1037,9 +1116,7 @@ public class SurfFacets extends TransformGroup{
 		Color3f specularColour = new Color3f(.1f,.1f,.1f);
 		Color3f diffuseColour =new Color3f(.8f*color3.getX(), .8f*color3.getY(), .8f*color3.getZ());
 		float shininess = 10.0f;
-
-
-
+		
 
 		Material material=new Material(ambientColour, emissiveColour,
 				diffuseColour, specularColour, shininess);
@@ -1083,10 +1160,10 @@ public class SurfFacets extends TransformGroup{
 
 
 		
-		LineAttributes la=new LineAttributes(1.6f,LineAttributes.PATTERN_SOLID,false);
+		LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 
 		TransparencyAttributes t_attr1,t_attr2,t_attr3;
-		t_attr1 =new TransparencyAttributes(TransparencyAttributes.NONE,.0f);
+		t_attr1 =new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,.0f);
 		t_attr2 =new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,(float)transp);		
 		t_attr3 =new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,(float)(.8*transp));	
 
@@ -1119,7 +1196,6 @@ public class SurfFacets extends TransformGroup{
 		ColoringAttributes ca=new  ColoringAttributes(edCol, ColoringAttributes.SHADE_GOURAUD);
 
 
-
 		edgeApp.setColoringAttributes(ca);
 		ca.setCapability(ColoringAttributes.ALLOW_COLOR_WRITE);
 
@@ -1129,8 +1205,14 @@ public class SurfFacets extends TransformGroup{
 	    
 		edgeApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
 		facetApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
+
 		
 
+
+		facetApp.setPolygonAttributes(pa);
+		
+		edgeApp.setPolygonAttributes(pa);
+		
 
 		this.surfFacets=new Shape3D(this.faceth,facetApp);
 		this.surfEdges=new Shape3D(this.allEdgeh,edgeApp);
@@ -1378,7 +1460,7 @@ public class SurfFacets extends TransformGroup{
 
 		}
 
-		LineAttributes la=new LineAttributes(1.2f,LineAttributes.PATTERN_SOLID,false);
+		LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 
 		TransparencyAttributes t_attr1,t_attr2,t_attr3;
 		t_attr1 =new TransparencyAttributes(TransparencyAttributes.NONE,.0f);
@@ -1398,6 +1480,9 @@ public class SurfFacets extends TransformGroup{
 
 		}
 		
+		facetApp.setPolygonAttributes(pa);
+		
+		edgeApp.setPolygonAttributes(pa);
 
 
 		this.surfFacets=new Shape3D(this.facet3ang,facetApp);
@@ -1914,7 +1999,7 @@ public class SurfFacets extends TransformGroup{
 		
 
 
-		LineAttributes la=new LineAttributes(1.5f,LineAttributes.PATTERN_SOLID,false);
+		LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 
 		TransparencyAttributes t_attr1,t_attr2,t_attr3;
 		t_attr1 =new TransparencyAttributes(TransparencyAttributes.NONE,.0f);
@@ -1947,6 +2032,10 @@ public class SurfFacets extends TransformGroup{
 	   	edgeApp.setRenderingAttributes(edgeRA);
 		
 		edgeApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
+		
+		facetApp.setPolygonAttributes(pa);
+		
+		edgeApp.setPolygonAttributes(pa);
 
 
 		this.surfFacets=new Shape3D(this.facet3angh,facetApp);
@@ -2669,7 +2758,7 @@ public class SurfFacets extends TransformGroup{
 		
 				Color3f edCol=new Color3f(color.darker().darker().darker());
 
-				LineAttributes la=new LineAttributes(1.2f,LineAttributes.PATTERN_SOLID,false);
+				LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 				ColoringAttributes ca=new  ColoringAttributes(edCol, ColoringAttributes.SHADE_GOURAUD);
 
 				ca.setCapability(ColoringAttributes.ALLOW_COLOR_WRITE);
@@ -2838,7 +2927,7 @@ public class SurfFacets extends TransformGroup{
 			
 			
 			
-				LineAttributes la=new LineAttributes(1.5f,LineAttributes.PATTERN_SOLID,false);
+				LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 				
 							
 				Appearance app=new Appearance();
@@ -3061,7 +3150,7 @@ public class SurfFacets extends TransformGroup{
 				
 
 			
-				LineAttributes la=new LineAttributes(1.2f,LineAttributes.PATTERN_SOLID,false);
+				LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 				
 				Color3f color3=new Color3f(.5f,.3f,.3f);
 				
@@ -3379,7 +3468,7 @@ private void rescaleElementField3DArrow(Model model,ColorBar cBar,double a){
 				this.arrowFace.setColorIndices(0, faceColorIndices);
 			
 			
-				LineAttributes la=new LineAttributes(1.2f,LineAttributes.PATTERN_SOLID,false);
+				LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 		
 				
 				Appearance app=new Appearance();
@@ -3576,7 +3665,7 @@ private void rescaleElementField3DArrow(Model model,ColorBar cBar,double a){
 				this.arrowFace.setColorIndices(0, faceColorIndices);
 			
 			
-				LineAttributes la=new LineAttributes(1.2f,LineAttributes.PATTERN_SOLID,false);
+				LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 		
 				
 				Appearance app=new Appearance();
@@ -4310,7 +4399,7 @@ public void rescaleNodalField3D(Model model,ColorBar cBar,double a,boolean all){
 	}
 
 
-public void rescaleElementField2D(Model model,ColorBar cBar,double a){
+ public void rescaleElementField2D(Model model,ColorBar cBar,double a)  throws NullPointerException{
 
 	int N=this.nArrows;
 
@@ -4339,6 +4428,7 @@ public void rescaleElementField2D(Model model,ColorBar cBar,double a){
 	P3f[] coords=new P3f[nVecrts];
 	Color3f[] colors= new Color3f[N];
 	Color3f[] edgeColors= new Color3f[N];
+
 	
 	int ix=0;
 	int p=0;
@@ -4349,10 +4439,10 @@ public void rescaleElementField2D(Model model,ColorBar cBar,double a){
 			Vect B=model.element[i].getB();
 			
 			double scale=B.norm();
-		
+
 			colors[ix]=new Color3f(cBar.getColor(scale));
 			edgeColors[ix++]=new Color3f(cBar.getColor(scale).darker());
-					
+	
 			Mat R=util.rotMat2D(B.normalized(), y);
 
 			Vect P=model.getElementCenter(i);

@@ -78,7 +78,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	public int nChosenRegion=0, nBoundary = 6;
 	public int decimal = 3, numberOfElements, numberOfRegions;
 	public double  scaleFactor,vScale0=1,vScale,vScalefact=1,moveStep0,moveStep,Vmin,Vmax,rng=0;
-	private Vect camEye,camEye0=new Vect(-.2,-1,1), target,target0=new Vect(3),upVect,upVect0=new Vect(0,0,1);
+	private Vect camEye,camEye0=new Vect(.3,.2,-1), target,target0=new Vect(3),upVect,upVect0=new Vect(0,1,0);
 	public boolean meshDrawn = false,meshLoaded,axesShown,meshShown,fieldShown,runMotor;
 	public boolean[] setRegion;
 	
@@ -1208,9 +1208,10 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	}
 
 
-	public void rescale(Model model) {
+	 public void rescale(Model model) {
 
 	
+		if(this.tfVectorScale.getText()!=null)
 		this.vScale=Double.parseDouble(this.tfVectorScale.getText());
 		
 		if(this.vScale<=0){
@@ -1222,13 +1223,14 @@ public class ViewingPanel extends JPanel implements ActionListener {
 			return;
 			
 		}
-		
-
+	
 		double e1=Double.parseDouble(this.cBar.tfc[0].getText());
 		double e2=Double.parseDouble(this.cBar.tfc[1].getText());
+		
 		if(e1>0 || e2>=0){
 			Vmin=e1;
 			Vmax=e2;
+		
 			setColorBar(cBarTitle,this.Vmin, this.Vmax);
 		}
 		
@@ -1383,7 +1385,6 @@ public class ViewingPanel extends JPanel implements ActionListener {
 
 		for (int ir = 1; ir <=this.numberOfRegions; ir++){
 			if(this.surfFacets[ir]==null) continue;
-
 			surfFacets[ir].rescaleVectField(model,cBar, this.vScale);
 		}
 	}

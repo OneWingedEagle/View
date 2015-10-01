@@ -49,6 +49,8 @@ public class ColorBar
 
     	tfc[0].setText(df.format(min));
     	tfc[1].setText(df.format(max));
+    	
+ 
     }
     
     public double[] getEnds(){
@@ -117,8 +119,7 @@ public class ColorBar
 	pn.add(this.tfc[0]);
 	
 	setLevels();
-	
-	
+
     
     	return pn;
     }
@@ -152,7 +153,11 @@ public class ColorBar
     public Color getColor(double b, double bmin, double bmax)
     {
         int mode = Math.max(0, Math.min(color.length-1, (int)(((b - bmin) / (bmax - bmin)) * (double)(color.length-1))));
+
+        if(color[mode]==null) return Color.red;
+     
         return color[mode];
+      
     }
 
     private void set()
