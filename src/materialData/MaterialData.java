@@ -50,9 +50,9 @@ import math.util;
 			color[i]=cBarReg.getColor(nregs-i-1) ;
 		}
 		
-		ColorBar cBar=new ColorBar(0.0,100.0);
+		ColorBar cBar=new ColorBar(0.0,1000.0);
 		
-		int L=100;
+		int L=1000;
 		 colb=new Color[L];
 		for(int i=0;i<L;i++)
 			colb[i]=cBar.getColor(i);
@@ -108,7 +108,9 @@ public  Color matColor(String material){
 	
 	public  Color matColor(int ir,String material,int cc, int bb){
 
-		if(cc==-1 && bb==0) return color[ir-1];
+	
+		if(cc<-1) return color[ir-1];
+		if(cc<0 && bb==0) return color[ir-1];
 		else if(bb==0 && cc>=0) {
 			if(cc>99) cc=99;
 			return colb[cc];
@@ -116,8 +118,8 @@ public  Color matColor(String material){
 	
 		Color clr=colb[cc];
 
-		double a=1.0+bb/100.0;
-			util.pr(a);
+		double a=1.0+bb/1000.0;
+	
 		int r=(int)(clr.getRed()*a);
 		if(r>255) r=255;
 		

@@ -35,7 +35,7 @@ public class Model{
 	,numberOfKnownPhis,numberOfUnknowns,analysisMode,stressViewCode,nodalStressMaxCode
 	,numberOfUnknownU,numberOfUnknownUcomp,numberOfUnknownA,numberOfUnknownAcomp,defMode, nRotReg;
 	public boolean deform,hasJ,hasM,forceLoaded,fluxLoaded,potentialLoaded,
-	stressLoaded,forceCalcLoaded,motor,fullMotor,batchAnim;
+	stressLoaded,forceCalcLoaded,motor,fullMotor,batchAnim,fluxNormalized=true;
 	int[][] facetVert={{6,2,5},{7,4,3},{6,7,2},{0,4,1},{4,7,5},{0,1,3}};
 	public byte elCode=4;
 	public double nu0=1e7/(4*Math.PI);
@@ -918,6 +918,8 @@ public class Model{
 		double[] str=new double[this.numberOfNodes+1];
 		nodalScalarMax=-1e40;
 		nodalScalarMin=1e40;
+		
+
 
 		Vect sv=null;
 		double se=0;
@@ -925,12 +927,13 @@ public class Model{
 
 		if(mode<2 || mode==10){
 
-		for(int ir=1;ir<=this.numberOfRegions-2;ir++){
+		for(int ir=1;ir<=this.numberOfRegions;ir++){
 			for(int i=this.region[ir].getFirstEl();i<=this.region[ir].getLastEl();i++){
+				
 				if(mode==0){
 					sv=element[i].getB();
 					se=sv.norm();
-					
+			
 				}
 				
 				else if(mode==1)sv=element[i].getStress();
@@ -939,6 +942,7 @@ public class Model{
 				if(mode!=10 && sv==null) continue;
 
 				if(mode==1){
+		
 					if(this.stressViewCode==0)
 						se=sv.el[0];
 					else if(this.stressViewCode==1)
@@ -968,8 +972,11 @@ public class Model{
 					se=util.tensorize(sv).mul(rn).dot(rn);
 					
 					}
-					else if(this.stressViewCode==5)
+					else if(this.stressViewCode==5){
 						se=meis(sv);
+					
+					}
+			
 				}
 
 				if(abs(se)<eps) continue;

@@ -30,6 +30,7 @@ import javax.vecmath.*;
 
 import com.sun.j3d.utils.behaviors.mouse.MouseRotate;
 import com.sun.j3d.utils.behaviors.mouse.MouseTranslate;
+import com.sun.j3d.utils.geometry.ColorCube;
 import com.sun.j3d.utils.image.TextureLoader;
 
 import javax.swing.BorderFactory;
@@ -61,6 +62,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	private JColorChooser cch=new JColorChooser();
 	private EditReg editReg=new EditReg();
 	private EditLight editLight;
+	public RubixMove rubix=new RubixMove();
 	public int  zoom = 0,nLoadedMesh;
 	private BranchGroup group;
 	private TransformGroup univGroup,femGroup;
@@ -78,7 +80,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	public int nChosenRegion=0, nBoundary = 6;
 	public int decimal = 3, numberOfElements, numberOfRegions;
 	public double  scaleFactor,vScale0=1,vScale,vScalefact=1,moveStep0,moveStep,Vmin,Vmax,rng=0;
-	private Vect camEye,camEye0=new Vect(.3,.2,-1), target,target0=new Vect(3),upVect,upVect0=new Vect(0,1,0);
+	private Vect camEye,camEye0=new Vect(.4,-.3,.3).times(3), target,target0=new Vect(3),upVect,upVect0=new Vect(0,0,1);
 	public boolean meshDrawn = false,meshLoaded,axesShown,meshShown,fieldShown,runMotor;
 	public boolean[] setRegion;
 	
@@ -300,6 +302,10 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		drwpNorth.add(this.bShot);
 		drwpNorth.add(this.bColorChooser);
 
+		
+		//rubix=new RubixMove();
+		//drwpNorth.add(rubix);
+		
 	
 		//==========================
 				
@@ -344,8 +350,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 			eastPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 			this.bApplyVscale = new Button("Apply");
 			
-			
-			
+				
 		//
 			eastPanel.add(this.tfX2);
 			eastPanel.add(this.bApplyVscale);
@@ -371,10 +376,11 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	//	group.setCapability(Group.ALLOW_CHILDREN_WRITE);  
 		
 		this.background = new Background();
-		background.setColor(new Color3f(new Color(250,250,255)));
-		/*TextureLoader loader = new TextureLoader(main.Main.class.getResource("sky2.jpg"), this );
-		this.image = loader.getScaledImage((int)(1.4*this.width), (int)(1.1*this.height));
+		background.setColor(new Color3f(new Color(255,255,255)));
+/*		TextureLoader loader = new TextureLoader(main.Main.class.getResource("sky2.jpg"), this );
+		this.image = loader.getScaledImage((int)(2*this.width), (int)(1.5*this.height));
 		this.background.setImage(this.image);*/
+		
 		BoundingSphere sphere = new BoundingSphere(new Point3d(0, 0, 0), 1000);
 		this.background.setApplicationBounds(sphere);
 		this.group.addChild(this.background);
@@ -434,6 +440,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		getScene();
 		
 		this.editLight.bApply.addActionListener(this);
+
 		
 		this.universe.addBranchGraph(this.group);
 		
@@ -488,6 +495,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		this.cartesian = new Cartesian(this.spaceBoundary, Color.red, Color.green.darker(),
 				Color.blue);
 		
+	
 	//	this.univGroup.addChild(this.cartesian);
 		this.femGroup = new TransformGroup();
 
@@ -673,6 +681,8 @@ public class ViewingPanel extends JPanel implements ActionListener {
 			this.editLight.setLocation(p.x+5,p.y+10);
 			this.editLight.setVisible(true);
 
+//			this.rubix.setLocation(p.x+600,p.y+10);
+	//		this.rubix.setVisible(true);
 		}
 	
 		else if (e.getSource() == this.bClear){
@@ -833,16 +843,25 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		this.backgroundMode++;
 		this.group.detach();
 
-		int mode=this.backgroundMode%5;
+		int mode=this.backgroundMode%3;
+		
+		mode=2;
+	
+		 if (mode==0)
+		{
+			TextureLoader loader = new TextureLoader(main.Main.class.getResource("sky2.jpg"), this );
+			this.image = loader.getScaledImage((int)(1.5*this.width), (int)(1.5*this.height));
+			this.background.setImage(this.image);
 
-		if (mode==1) {
+		}
+		 else if (mode==1) {
 
 			TextureLoader loader = new TextureLoader(main.Main.class.getResource("sky.jpg"), this );
 			ImageComponent2D image = loader.getScaledImage((int)(1.5*this.width), (int)(1.5*this.height));
 			this.background.setImage(image);
 
 		}
-		if (mode==2) {
+		/*if (mode==2) {
 			TextureLoader loader = new TextureLoader(main.Main.class.getResource("black.jpg"), this );
 			ImageComponent2D image = loader.getScaledImage((int)(1.5*this.width), (int)(1.5*this.height));
 			this.background.setImage(image);
@@ -854,8 +873,8 @@ public class ViewingPanel extends JPanel implements ActionListener {
 			TextureLoader loader = new TextureLoader(main.Main.class.getResource("white.jpg"), this );
 			ImageComponent2D image = loader.getScaledImage((int)(1.5*this.width), (int)(1.5*this.height));
 			this.background.setImage(image);
-		}
-		else if (mode==4)
+		}*/
+		else if (mode==2)
 		{
 			// cch=new JColorChooser();
 			Color color=cch.showDialog(new JFrame(), "Pick a Color",Color.blue);
@@ -868,13 +887,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 
 
 		}
-		else if (mode==0)
-		{
-			TextureLoader loader = new TextureLoader(main.Main.class.getResource("sky2.jpg"), this );
-			this.image = loader.getScaledImage((int)(1.5*this.width), (int)(1.5*this.height));
-			this.background.setImage(this.image);
 
-		}
 
 		this.universe.addBranchGraph(this.group);
 
@@ -939,7 +952,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		setRegion=new boolean[this.numberOfRegions+1];
 	
 		for (int ir = 1; ir <= this.numberOfRegions; ir++)
-		/*	if(ir==1)*/ setRegion[ir]=true;
+			/*if(ir==14)*/setRegion[ir]=true;
 		
 		this.regionMatColor=new Color[this.numberOfRegions+1];
 		this.regEdgeColor=new Color[this.numberOfRegions+1];
@@ -1145,12 +1158,12 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		for (int ir = 1; ir <=this.numberOfRegions; ir++) {
 		//	if(ir!=1) continue;
 
-			this.surfFacets[ir].setEdgeColor(Color.black,.95);
+			if(setRegion[ir]){
+			this.surfFacets[ir].setEdgeColor(Color.black,.7);
 			this.surfFacets[ir].paintNodalScalar(model);	
+			}
 
 		}
-
-
 
 			setColorBar("Stress (MPa)",this.Vmin,this.Vmax);
 
@@ -1244,17 +1257,15 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		
 		scaleNodalScalar(model);
 		}
-
-		
 			
 	}
-
 
 
 	public void setVectField(Model model,int mode) {
 		
 		fieldMode=mode;
-	
+
+		
 		setVminVmax(model);
 				
 		this.numberOfRegions = model.numberOfRegions;
@@ -1266,14 +1277,17 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		else if(dim==3 && fieldMode==3)  arrowMode=4;
 		else arrowMode=3;
 
-		//arrowMode=4;
+		if(dim==3 && fieldMode==4)  arrowMode=4; // temporary for Bmodes
+	
 
 		
 		this.numberOfRegions = model.numberOfRegions;
 
 		this.group.detach();
 		for (int ir = 1; ir <=this.numberOfRegions; ir++) {
-				
+			
+			if(!this.surfFacets[ir].showRegion) continue;
+			
 			if(this.surfFacets[ir]==null) continue;
 			
 			this.surfFacets[ir].setVectField(model,this.cBar,this.fieldMode,arrowMode);
@@ -1326,7 +1340,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 			this.surfFacets[ir].showVectField=this.surfFacets[ir].showRegion;
 			
 			this.surfFacets[ir].showVectField=b;
-			this.surfFacets[ir].showRegFace=false;
+			this.surfFacets[ir].showRegFace=!b;
 			
 			//this.surfFacets[ir].refreshField();
 			this.surfFacets[ir].setEdgeTransparency(.5);

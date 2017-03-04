@@ -47,6 +47,7 @@ public class EdgeSet {
 				n1=vertNumb[edgeLocalNodes[j][0]];
 				n2=vertNumb[edgeLocalNodes[j][1]];
 				if(n2<n1) { int tmp=n1; n1=n2; n2=tmp;}
+				
 				m=util.search(nodeNode[0][n1].el,n2);
 
 				if(m<0){

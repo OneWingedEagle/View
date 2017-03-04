@@ -120,7 +120,7 @@ public class Loader {
 				
 				line=br.readLine();
 				sp=line.split(regex);
-				String[] str=new String[5];
+				String[] str=new String[10];
 				int k=0;
 				for(int j=0;j<sp.length;j++){
 					if(!sp[j].equals(""))
@@ -134,16 +134,25 @@ public class Loader {
 				model.region[i].setMaterial(str[2]+"mat");
 
 				int nx=0;
-				String[] spc=line.split("");
-				for(int j=0;j<spc.length;j++)
-					if(spc[j].equals(",")) nx++;
-				
+				String[] spc=line.split(regex);
+				nx=spc.length;
+		
 				int cc=-1,bb=0;
-				if(nx==3)
+				if(nx==4)
 				cc=Integer.parseInt(str[nx]);
-				else if(nx==4){
-					cc=Integer.parseInt(str[nx-1]);
-					bb=Integer.parseInt(str[nx]);
+				else if(nx==5){
+					cc=Integer.parseInt(str[nx-2]);
+					bb=Integer.parseInt(str[nx-1]);
+				}
+				else if(nx==6){
+					cc=-100;
+					util.pr(nx);
+					int[] rgb=new int[3];
+					rgb[0]=Integer.parseInt(str[nx-3]);
+					rgb[1]=Integer.parseInt(str[nx-2]);
+					rgb[2]=Integer.parseInt(str[nx-1]);
+					model.region[i].setRGB(rgb);
+					
 				}
 			
 				model.region[i].setColorCode(cc,bb);
@@ -180,17 +189,6 @@ public class Loader {
 					}
 				}
 				
-				}
-				
-				for(int i=1;i<=-model.numberOfElements;i++){
-					Vect c=model.getElementCenter(i);
-					if(c.v2().sub(new Vect(0.055,.0)).norm()<.005)
-						{util.pr(i); c.hshow();
-					int[] vn=model.element[i].getVertNumb();
-					for(int j=0;j<vn.length;j++)
-					model.node[vn[j]].setCoord(2,.02);
-						}
-		
 				}
 				
 			System.out.println();
@@ -774,6 +772,7 @@ boolean rotating=true;
 
 					model.element[ne].setDeformable(true);
 					model.element[ne].setStress(ss);
+			
 				//	Vect v1=model.getElementCenter(ne).v2();
 					
 			/*		if( v1.sub(v0).norm()<1e-4){
@@ -891,6 +890,8 @@ boolean rotating=true;
 						v.el[j]=Double.parseDouble(scr.next());
 	
 			//	if(model.node[nn].getR()<.0546 || util.getAng(model.node[nn].getCoord())>Math.PI/6) continue;
+					
+				//	if(model.node[nn].getR()>.059) continue;
 				
 					model.node[nn].setDeformable(true);	
 					

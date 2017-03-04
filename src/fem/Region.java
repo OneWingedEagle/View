@@ -7,6 +7,7 @@ import math.util;
 public class Region {
 
 	public int dim,BHnumber,lamBNumber,colorCode=-1,brightenss=0;
+	private int[] RGB;
 	private String material,name;
 	private double mu0=PI*4e-7;
 	private Vect mur,sigma,nu,J,M;
@@ -194,6 +195,14 @@ public class Region {
 	}
 	public int getColorBrightness(){
 		return this.brightenss;
+	}
+	public void setRGB(int[] rgb){
+		this.RGB=new int[3];
+		for(int i=0;i<3;i++)
+		this.RGB[i]=rgb[i];
+	}
+	public int[] getRGB(){
+		return this.RGB;
 	}
 }
 	

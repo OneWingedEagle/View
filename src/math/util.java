@@ -693,4 +693,13 @@ public static void plot(double[][] XY){
 		return m;
 	}
 	
+	public static void pause(int sec){
+		try {
+			new Thread().sleep(sec);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }

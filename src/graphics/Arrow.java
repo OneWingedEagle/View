@@ -46,7 +46,6 @@ public class Arrow extends TransformGroup {
 		this.mode=mode;
 		 this.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 
-		 
 			 if(mode==-2)
 				setArrowm2();
 			 else if(mode==-1)
@@ -228,10 +227,9 @@ public class Arrow extends TransformGroup {
 		double radius=0,height=0,coneHeight=0,coneRadius;
 
 			height=scale.el[1];
-			radius=.05*scale.el[0];
-			coneHeight=.4*height;
+			radius=.1*scale.el[0];
+			coneHeight=.8*height;
 			coneRadius=2*radius;
-			double hh=.5*height;
 
 			Color3f color3=new  Color3f();
 		
@@ -263,7 +261,7 @@ public class Arrow extends TransformGroup {
 		transCone.rotX(PI/2);
 		
 
-		transCone.setTranslation(new V3f(new Vect(0,0,(height+coneHeight/2))));	
+		transCone.setTranslation(new V3f(new Vect(0,0,(height))));	
 
 		tgCone.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
 		
@@ -280,7 +278,7 @@ public class Arrow extends TransformGroup {
 		transAx.rotX(PI/2);
 		
 
-			transAx.setTranslation(new V3f(new Vect(0,0,hh)));	
+			transAx.setTranslation(new V3f(new Vect(0,0,height/2)));	
 			
 			tgAx.setTransform(transAx);
 			

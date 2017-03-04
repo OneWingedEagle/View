@@ -40,6 +40,7 @@ import javax.vecmath.Matrix3d;
 
 import com.sun.j3d.utils.geometry.Cylinder;
 import com.sun.j3d.utils.geometry.Sphere;
+import com.sun.j3d.utils.geometry.Text2D;
 
 
 
@@ -60,16 +61,15 @@ public class SurfFacets extends TransformGroup{
 	public int[] surfVertNumb;
 	public double[] nodalVals;
 	public double nodalScalarScale=1,defScale;
-	public boolean showRegion,setRegion,showVectField,showRegEdge,showRegFace,allNodesVect;
+	public boolean showRegion,setRegion,showVectField,showRegEdge,showRegFace,allNodesVect,nodalPainted;
 	private RenderingAttributes facetRA,edgeRA,fieldRA;
 	
 	public Arrow[] arrow;
 	Transform3D[] trans;
 	public int nRegNodes,mode,vectMode;
-//	public Vect[] P;
 	public Vect[] V;
 	public double vScale=1;
-	public int[] neNumb;
+	//public int[] neNumb;
 	private PolygonAttributes pa;
 
 	int ii;
@@ -90,7 +90,7 @@ public class SurfFacets extends TransformGroup{
 
 		pa=new PolygonAttributes();
 		pa.setPolygonOffsetFactor(1.f);
-		pa.setPolygonOffset(1e-12f);
+		pa.setPolygonOffset(1e-8f);
 		
 		facetRA = new RenderingAttributes( );
 		facetRA.setCapability(RenderingAttributes.ALLOW_VISIBLE_WRITE);
@@ -753,10 +753,15 @@ public class SurfFacets extends TransformGroup{
 		edgeApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
 
 
+	  	edgeApp.setRenderingAttributes(edgeRA);
+	    facetApp.setRenderingAttributes(facetRA);
+
 
 		this.surfFacets=new Shape3D(this.facet3ang,facetApp);
 		this.surfEdges=new Shape3D(this.allEdge,edgeApp);
 
+		showFacets(true);
+		showEdges(true);
 
 	}
 
@@ -818,7 +823,7 @@ public class SurfFacets extends TransformGroup{
 					else{
 						if(model.edge[ep].endNodeNumber[1]==n1) 
 							nn[jx++]=model.edge[ep].endNodeNumber[0];
-					}
+											}
 				}
 
 			}
@@ -836,59 +841,6 @@ public class SurfFacets extends TransformGroup{
 			}
 
 		}
-		
-
-
-		
-/*		for(int i=1;i<=nEdge;i++){
-
-
-			
-		
-			for(int j=0;j<edgeElement[i].length && edgeElement[i].el[j]>0;j++){
-				
-				int numbNeighbor=0;
-				
-				int e1=edgeElement[i].el[j];
-	
-				int[] ne1=model.element[e1].getEdgeNumb();
-				
-				for(int jj=j+1;jj<edgeElement[i].length && edgeElement[i].el[jj]>0;jj++){
-					
-					int e2=edgeElement[i].el[jj];
-					int[] ne2=model.element[e2].getEdgeNumb();
-
-					boolean hasCommonEdges=false;
-					
-					for(int u=0;u<model.nElEdge && ne1[u]!=i && !hasCommonEdges;u++){
-						for(int v=0;v<model.nElEdge && ne2[v]!=i&& !hasCommonEdges;v++){
-							if(ne1[u]==ne2[v]) {
-								hasCommonEdges=true;
-							}
-						}
-					}
-					
-					if(hasCommonEdges)
-						numbNeighbor++;
-					
-				}
-
-				
-					if(numbNeighbor<2){
-						onSurf[i]=true;
-						nx++;
-						break;
-						}
-				
-			
-			}
-		
-		
-				
-				
-			}*/
-		
-		
 
 
 		this.nSurfEdges=nx;
@@ -1082,8 +1034,7 @@ public class SurfFacets extends TransformGroup{
 		int[] normalIndices =new int[4*this.nSurfQuads];
 		for(int i=0;i<normalIndices.length;i++)
 			normalIndices[i]=key[normalIndices1[i]];
-
-
+		
 			Color3f cl3=new Color3f(color);
 			Color3f[] colors=new Color3f[nNodes];
 			for(int i=0;i<nNodes;i++){
@@ -2284,22 +2235,54 @@ public class SurfFacets extends TransformGroup{
 
 
 
-		this.surfFacets.setAppearance(null);
+		//this.surfFacets.setAppearance(null);
+		//this.surfFacets.getAppearance().getMaterial().setDiffuseColor(new Color3f(0,0,0));
+		//this.surfFacets.getAppearance().getMaterial().setEmissiveColor(new Color3f(0,0,0));
+		//this.surfFacets.getAppearance().getMaterial().setSpecularColor(new Color3f(0,0,0));
+		this.surfFacets.getAppearance().getMaterial().setAmbientColor(new Color3f(0,0,0));
 
 		int nNodes=this.surfVertNumb.length;
 		this.nodalVals=new double[nNodes];
 
 		Color3f[] cld=new Color3f[nNodesQ];
-
+	
+		/*
+	Color[] ss=new Color[8];
+	
+		ss[0]=new Color(0,153,0);
+		ss[1]=new Color(0,0,200);
+		ss[2]=new Color(255,255,0);
+		ss[3]=new Color(255,255,255);
+		ss[4]=new Color(215,119,0);
+		ss[5]=new Color(204,0,0);
+		
+		ss[6]=new Color(0,0,0);
+		*/
+		
+/*		ss[0]=new Color(204,0,0);
+		ss[1]=new Color(215,119,0);
+		ss[2]=new Color(0,0,200);
+		ss[3]=new Color(0,153,0);
+	
+		ss[4]=new Color(255,255,0);
+		ss[5]=new Color(255,255,255);
+		ss[6]=new Color(0,0,0);*/
 		for(int i=0;i<this.nNodesQ;i++){
 	
 
 			double sn=model.node[this.surfVertNumb[i]].scalar;
 			this.nodalVals[i]=sn;
 			cld[i]=new Color3f( cBar.getColor(sn));
+//======================
+			//if(sn>0)
+		//	cld[i]=new Color3f( ss[(int)(sn)-1]);
+			//else cld[i]=new Color3f(0,0,0);
+	//====================	
 
 		}
 		this.faceth.setColors(0,cld);
+		
+		
 		
 		if(model.elCode==3){
 		
@@ -2317,6 +2300,7 @@ public class SurfFacets extends TransformGroup{
 		}
 		this.facet3angh.setColors(0,cld);
 		}
+		
 
 
 		//this.surfEdges.getAppearance().setTransparencyAttributes(new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,.8f));
@@ -2388,7 +2372,11 @@ public class SurfFacets extends TransformGroup{
 
 		}
 
-		this.faceth.setColors(0,cld);
+		if(this.elCode!=0)
+			this.faceth.setColors(0,cld);
+			else
+				this.facet3angh.setColors(0,cld);
+
 		this.surfEdges.getAppearance().setTransparencyAttributes(new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,.8f));
 
 
@@ -2428,7 +2416,6 @@ public class SurfFacets extends TransformGroup{
 
 	}
 	
-
 	public void deformReg(Model model, double defScale){
 		
 		if(model.elCode==3) { deformRegWedge(model,defScale); return;}
@@ -2485,6 +2472,34 @@ public class SurfFacets extends TransformGroup{
 		this.faceth.setCoordinates(0,newCoord);
 		
 		this.allEdgeh.setCoordinates(0,newCoord);
+		
+		return;
+	}
+
+
+	public void runRubix(Mat R){
+
+
+		P3f[] newCoord=new P3f[this.surfVertNumb.length];
+		Vect vr=new Vect();
+		for(int i=0;i<this.surfVertNumb.length;i++)
+		{
+			
+			float[] cc=new float[3];
+			faceth.getCoordinates(i,cc);
+			Vect v=new Vect(cc[0],cc[1],cc[2]);
+
+			vr=R.mul(v);
+			
+	
+			newCoord[i]=new P3f(vr);
+
+		}
+
+		this.faceth.setCoordinates(0,newCoord);
+		
+		this.allEdgeh.setCoordinates(0,newCoord);
+		
 		
 		return;
 	}
@@ -2677,7 +2692,7 @@ public class SurfFacets extends TransformGroup{
 		this.arrMode=arrMode;
 		this.fieldMode=fieldMode;
 		if(fieldMode==4) {
-			if(this.arrMode<2) setElementField2D1(model,cBar);
+				if(this.arrMode<2) setElementField2D1(model,cBar);
 			else if(this.arrMode==2) setElementField3D0(model,cBar);
 			else if(this.arrMode==3) setElementField3D1(model,cBar);
 			else if(this.arrMode==4) setElementField3DArrow(model,cBar,1);
@@ -3203,12 +3218,13 @@ public class SurfFacets extends TransformGroup{
 		Vect[] P=new Vect[this.nElements];
 		 V=new Vect[this.nElements];
 
-		neNumb=new int[this.nElements];
+		//neNumb=new int[this.nElements];
 
 		int ix=0;
 
 		for(int i=model.region[nr].getFirstEl();i<=model.region[nr].getLastEl();i++)
 		{
+			//neNumb[ix]=i;
 
 				P[ix]=model.getElementCenter(i);
 				V[ix]=model.element[i].getB();
@@ -3232,35 +3248,44 @@ public class SurfFacets extends TransformGroup{
 		else if(mode==3) { Vmax=model.FedMax;}
 		else if(mode==4) */{ Vmax=model.Bmax;}
 
-		if(Vmax>0)
-			vScale=.2*(model.minEdgeLength+model.maxEdgeLength)/Vmax;
+		//if(Vmax>0)
+		//	vScale=.2*(model.minEdgeLength+model.maxEdgeLength)/Vmax;
 		
 		
 		trans=new Transform3D[this.nElements];
 	
 	Color color=Color.red.darker();
-	if(model.region[nr].getName().startsWith("blue"))
-		 color=Color.blue.darker();
-	else if(model.region[nr].getName().startsWith("green"))
-		color=Color.green.darker();
 
-
-		
 		for(int j=0;j<this.nElements;j++){	
 
 			trans[j]=new Transform3D();
 			trans[j].setTranslation(new V3f(P[j]));
 			double Vn=V[j].norm();
+
+			
+	
+			
 			double a=Vn*vScale;
+			
+			if(model.fluxNormalized){
+				
+				if(Vn/model.Bmax>1e-2)
+				a=1./10;
+				else
+					a=1./100;
+			}
 			
 			arrow[j]=new Arrow(vectMode);
 
-			Matrix3d Mr =util.mat3d(V[j],new Vect(1,0,0));	
+			Matrix3d Mr =util.mat3d(V[j],new Vect(0,0,1));	
 
 
 			
 			trans[j].setRotation(Mr);
-		//	trans[j].setScale(a);
+			trans[j].setScale(a);
+				
+			color=cBar.getColor(Vn);
+			
 			
 			arrow[j].setColor(color);
 			
@@ -3280,25 +3305,33 @@ public class SurfFacets extends TransformGroup{
 	}
 	
 private void rescaleElementField3DArrow(Model model,ColorBar cBar,double a){
-	
 
+	Color color=Color.red.darker();
 		
-		for(int j=0;j<this.nElements;j++){/*	
+		for(int j=0;j<this.nElements;j++){	
 
 		
 			//Matrix3d M =util.mat3dScale(new Vect(a*arrow[j].scale.el[0],a*arrow[j].scale.el[0],a*arrow[j].scale.el[1]));	
-		//	trans[j].setScale(arrow[j].scale.el[1]);
-			//trans[j].setRotation(M);
+			//trans[j].setScale(arrow[j].scale.el[1]);
+		//	trans[j].setRotation(M);
 			
-			arrow[j].transCone.setScale(a);
+/*			arrow[j].transCone.setScale(a);
 			arrow[j].transAx.setScale(a);
 			arrow[j].tgCone.setTransform(arrow[j].transCone);
-			arrow[j].tgAx.setTransform(arrow[j].transAx);
-			//arrow[j].setTransform(	trans[j]);
+			arrow[j].tgAx.setTransform(arrow[j].transAx);*/
+
+			double Vn=V[j].norm();
+			color=cBar.getColor(Vn);
+						
+			arrow[j].setColor(color);
+			
+			trans[j].setScale(a*arrow[j].scale.el[1]);
+			
+			arrow[j].setTransform(trans[j]);
 			
 		
 			
-		*/}
+		}
 		
 
 	}
@@ -3397,7 +3430,7 @@ private void rescaleElementField3DArrow(Model model,ColorBar cBar,double a){
 
 			for(int j=0; j<K;j++){
 				Vect v=R.mul(av[j].times(scale));
-				coords[p]=new P3f(P.add(v).v3());
+				coords[p]=new P3f(P.add(v.v3()));
 				
 				p++;
 				
@@ -4194,8 +4227,6 @@ private void rescaleElementField3DArrow(Model model,ColorBar cBar,double a){
 	
 
 public void rescaleVectField(Model model,ColorBar cBar,double a){
-
-
 	if(this.fieldMode==4)
 	{
 		if(arrMode<2)
@@ -4216,9 +4247,7 @@ public void rescaleVectField(Model model,ColorBar cBar,double a){
 	
 public void rescaleElementField3D(Model model,ColorBar cBar,double a){
 
-	
 	if(this.arrMode==4){
-		
 		rescaleElementField3DArrow(model, cBar, a);
 		}
 	
@@ -4264,6 +4293,17 @@ public void rescaleElementField3D(Model model,ColorBar cBar,double a){
 			Mat R=util.rotMat(B.normalized(), z);
 
 			Vect P=model.getElementCenter(i).v3();
+			
+			if(model.fluxNormalized){
+
+				if(scale/model.Bmax>1e-2)
+				scale=vScale/10;
+				else
+					scale=vScale/100;
+					
+			}
+			
+		
 
 			for(int j=0; j<5;j++){
 				Vect v=R.mul(av[j].times(scale));
@@ -4449,7 +4489,7 @@ public void rescaleNodalField3D(Model model,ColorBar cBar,double a,boolean all){
 
 			for(int j=0; j<K;j++){
 				Vect v=R.mul(av[j].times(scale));
-				coords[p]=new P3f(P.add(v).v3());		
+				coords[p]=new P3f(P.add(v.v3()));		
 								
 				p++;
 			
