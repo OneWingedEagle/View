@@ -52,7 +52,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	bNavU ,bNavD,bNavZoomIn,bNavZoomOut,bFindValue,bColorChooser;
 	private Button bInfo,bRefresh;
 	public ButtonIcon bDefaultView,bFullScreen;
-	public JComboBox  stressDist;
+	public JComboBox  stressDist,arrowOption;
 	public TextField tfVectorScale,tfX1,tfX2;;
 	private JPanel  regButtonPanel ,southPanel, centerPanel,colBar,eastPanel;
 	public FindValue fv = new FindValue();
@@ -301,8 +301,15 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		drwpNorth.add(this.tfVectorScale);
 		drwpNorth.add(this.bShot);
 		drwpNorth.add(this.bColorChooser);
-
 		
+		
+		String[] arrowOption = {"pyramid", "arrow"};
+		this.arrowOption = new JComboBox(arrowOption);
+		this.arrowOption.setSelectedIndex(0);
+this.arrowOption.setEnabled(true);
+		
+	drwpNorth.add(this.arrowOption);
+
 		//rubix=new RubixMove();
 		//drwpNorth.add(rubix);
 		
@@ -1274,10 +1281,12 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		
 		int arrowMode=0;
 		if(dim==2) arrowMode=1;
-		else if(dim==3 && fieldMode==3)  arrowMode=4;
-		else arrowMode=3;
-
-		if(dim==3 && fieldMode==4)  arrowMode=4; // temporary for Bmodes
+		else if(dim==3) {
+			int arrIndex=this.arrowOption.getSelectedIndex();
+			arrowMode=arrIndex+3;
+		}
+	
+		//if(dim==3 && fieldMode==4)  arrowMode=4; // temporary for Bmodes
 	
 
 		

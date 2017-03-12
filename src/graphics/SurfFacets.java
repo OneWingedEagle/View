@@ -3,10 +3,8 @@ package graphics;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static java.lang.Math.*;
@@ -59,6 +57,7 @@ public class SurfFacets extends TransformGroup{
 	private IndexedLineArray allEdgeh;
 	private IndexedLineArray arrows;
 	public int[] surfVertNumb;
+	public boolean[] surfElements;
 	public double[] nodalVals;
 	public double nodalScalarScale=1,defScale;
 	public boolean showRegion,setRegion,showVectField,showRegEdge,showRegFace,allNodesVect,nodalPainted;
@@ -72,7 +71,7 @@ public class SurfFacets extends TransformGroup{
 	//public int[] neNumb;
 	private PolygonAttributes pa;
 
-	int ii;
+	int ii,nArrowHeadDivs;
 	int dim,nr,arrMode,fieldMode;
 	public int[][] surface3angNodes;
 
@@ -916,6 +915,24 @@ public class SurfFacets extends TransformGroup{
 				}
 			}
 
+		surfElements=new boolean[this.nElements];
+
+	int kx=0;
+	for(int i=model.region[ir].getFirstEl();i<=model.region[ir].getLastEl();i++){
+		
+			int[] vertNumb=model.element[i].getVertNumb();
+
+			for(int j=0;j<vertNumb.length;j++){
+				int nn=vertNumb[j];
+				if(nc[nn]){
+					surfElements[kx]=true;	
+					break;
+				}
+			}
+			
+			kx++;
+	}
+	
 
 
 
@@ -2694,7 +2711,8 @@ public class SurfFacets extends TransformGroup{
 		if(fieldMode==4) {
 				if(this.arrMode<2) setElementField2D1(model,cBar);
 			else if(this.arrMode==2) setElementField3D0(model,cBar);
-			else if(this.arrMode==3) setElementField3D1(model,cBar);
+			//else if(this.arrMode==3) setElementField3D1(model,cBar);
+			else if(this.arrMode==3) setElementField3DK(model,cBar,6);
 			else if(this.arrMode==4) setElementField3DArrow(model,cBar,1);
 			return;}
 		else setNodalField(model,cBar);
@@ -2968,10 +2986,11 @@ public class SurfFacets extends TransformGroup{
 	public void setElementField3D1(Model model,ColorBar cBar){
 
 		int N=0;
-		int ix=0;
-		for(int i=model.region[nr].getFirstEl();i<=model.region[nr].getLastEl();i++){
+		int ix=-1;
+		for(int i=model.region[nr].getFirstEl();i<=model.region[nr].getLastEl();i++){		
+			ix++;
+			if(!this.surfElements[ix]) continue;
 			Vect B=model.element[i].getB();
-			
 			double scale=B.norm();
 			if( scale>0 ) 
 				{N++;
@@ -2980,8 +2999,7 @@ public class SurfFacets extends TransformGroup{
 				}
 			else 
 				model.element[i].setShowVectField(false);
-		
-			ix++;
+	
 		
 		}
 		nArrows=N;
@@ -3206,6 +3224,282 @@ public class SurfFacets extends TransformGroup{
 				
 	}
 	
+	public void setElementField3DK(Model model,ColorBar cBar,int K1){
+
+		nArrowHeadDivs=K1;
+		int N=0;
+		int ix=-1;
+		for(int i=model.region[nr].getFirstEl();i<=model.region[nr].getLastEl();i++){		
+			ix++;
+			if(!this.surfElements[ix]) continue;
+			Vect B=model.element[i].getB();
+			double scale=B.norm();
+			if( scale>0 ) 
+				{N++;
+				model.element[i].setShowVectField(true);
+						
+				}
+			else 
+				model.element[i].setShowVectField(false);
+	
+		
+		}
+		nArrows=N;
+
+		if(N==0) return;
+		
+		//int K=5;
+		double d=0.2*(model.maxEdgeLength+model.minEdgeLength);
+		double dx=d/5;
+		
+		int K=K1+1;
+		
+		if(K1>4) K++;
+	
+		Vect[] av=new Vect[K];
+		
+		for(int i=0;i<K1;i++){
+			double x=dx*cos(i*2*PI/K1);
+			double y=dx*sin(i*2*PI/K1);
+			av[i]=new Vect(x,y,0);
+		}
+		av[K1]=new Vect(0,0,d);
+		if(K1>4) 
+			av[K-1]=new Vect(0,0,0);	
+		
+		int nVecrts=K*N;
+		
+		P3f[] coords=new P3f[nVecrts];
+		int[] sideCoordIndices=new int[K1*3*N];	
+	
+		int nQuads=1;
+		if(K1>4) nQuads=K1/2;
+		int[] baseCoordIndices=new int[nQuads*4*N];
+
+		int[] edgeCoordIndices=new int[4*K1*N];
+		
+		Color3f[] colors= new Color3f[N];
+		
+		int[] sideColorIndices=new int[3*K1*N];	
+		int[] edgeColorIndices=new int[4*K1*N];	
+		int[] baseColorIndices=new int[nQuads*4*N];	
+
+	
+
+		Vect z=new Vect(0,0,1);
+		
+
+		int p=0;
+		
+		int iy=0,iz=0,iw=0;
+		ix=0;
+
+		for(int i=model.region[nr].getFirstEl();i<=model.region[nr].getLastEl();i++){
+	
+			if(!model.element[i].toShowVectField()) continue;
+		
+	
+			
+			Vect B=model.element[i].getB();
+			
+			double scale=B.norm();
+			
+			colors[ix]=new Color3f(cBar.getColor(scale));
+			
+			for(int j=0; j<3*K1;j++){
+				sideColorIndices[iy++]=ix;
+			}
+			
+					
+			for(int j=0; j<4*K1;j++){
+				edgeColorIndices[iz++]=ix;
+			}
+			
+			for(int j=0; j<nQuads*4;j++){
+				baseColorIndices[iw++]=ix;
+			}
+			
+			ix++;
+			
+			Mat R=util.rotMat(B.normalized(), z);
+
+			Vect P=model.getElementCenter(i).v3();
+
+			for(int j=0; j<K;j++){
+				Vect v=R.mul(av[j].times(scale));
+				coords[p]=new P3f(P.add(v));
+				
+				p++;
+				
+			}
+		
+			}
+
+		
+	
+		int[][] localInd=new int[K1][3];
+		int[][] localIndEdge=new int[2*K1][2];//{{0,1},{1,2},{2,3},{3,0},{0,4},{1,4},{2,4},{3,4}};
+		
+		for(int j=0; j<K1;j++){
+			localInd[j][0]=j;
+			if(j<K1-1)
+				localInd[j][1]=j+1;
+			else
+				localInd[j][1]=0;
+			
+			localInd[j][2]=K1;
+			
+			localIndEdge[j][0]=j;
+			if(j<K1-1)
+				localIndEdge[j][1]=j+1;
+			else
+				localIndEdge[j][1]=0;
+			
+			localIndEdge[K1+j][0]=j;
+			localIndEdge[K1+j][1]=K1;
+		}
+
+
+		p=0;
+		ix=0;
+
+		 int t=0,m=0;
+		 
+		for(int i=0; i<N;i++){
+		
+		for(int j=0; j<K1;j++){
+					for(int k=0; k<3;k++){
+						sideCoordIndices[p]=ix+localInd[j][k];
+						p++;
+					}
+					
+		}
+		
+		for(int k=0; k<nQuads;k++){
+	
+			if(nQuads==1){
+			for(int j=0; j<4;j++){
+				int index=ix+3-j;
+					baseCoordIndices[t++]=index;
+			}
+			}
+			else{
+					for(int j=0; j<3;j++){
+						int index=k*2+ix+2-j;
+						if(index==K1) index=ix;
+							baseCoordIndices[t++]=index;
+					}
+					baseCoordIndices[t++]=ix+K-1;
+			}
+			
+			
+		}
+			
+	
+		for(int j=0; j<2*K1;j++){
+			for(int k=0; k<2;k++)
+			edgeCoordIndices[m++]=ix+localIndEdge[j][k];
+			}
+				
+			
+				ix+=K;
+		}
+
+		float a=.8f;
+		
+		Color3f[] edgeColors= new Color3f[N];
+		for(int j=0; j<N;j++){
+			
+		edgeColors[j]=new Color3f(a*colors[j].x,a*colors[j].y,a*colors[j].z);
+		}
+		
+		
+			this.arrowFace=new IndexedTriangleArray(nVecrts,GeometryArray.COORDINATES  |
+					/*GeometryArray.NORMALS | */GeometryArray.COLOR_3,3*K1*N);
+	
+				this.arrowFace.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
+				this.arrowFace.setCapability(GeometryArray.ALLOW_COORDINATE_WRITE);
+				
+				
+				
+				this.arrowBase=new IndexedQuadArray(K*N,GeometryArray.COORDINATES  |
+						/*GeometryArray.NORMALS |*/ GeometryArray.COLOR_3,4*nQuads*N);
+		
+					this.arrowBase.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
+					this.arrowBase.setCapability(GeometryArray.ALLOW_COORDINATE_WRITE);
+					
+				this.arrows=new IndexedLineArray(K*N,GeometryArray.COORDINATES  |
+							 GeometryArray.COLOR_3,4*K1*N);
+			
+						this.arrows.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
+						this.arrows.setCapability(GeometryArray.ALLOW_COORDINATE_WRITE);
+
+
+				this.arrows.setCoordinates(0, coords);		
+				this.arrows.setCoordinateIndices(0, edgeCoordIndices);	
+				this.arrows.setColors(0, edgeColors);	
+				this.arrows.setColorIndices(0, edgeColorIndices);		
+			
+			
+				this.arrowFace.setCoordinates(0, coords);				
+			//	this.arrowFace.setNormals(0, normals);
+				this.arrowFace.setCoordinateIndices(0, sideCoordIndices);				
+			//	this.arrowFace.setNormalIndices(0, normalIndices);
+				this.arrowFace.setColors(0, colors);
+				this.arrowFace.setColorIndices(0, sideColorIndices);
+				
+				this.arrowBase.setCoordinates(0, coords);
+				this.arrowBase.setCoordinateIndices(0, baseCoordIndices);
+				//this.arrowBase.setNormals(0, baseNormals);
+				//this.arrowBase.setNormalIndices(0, baseNormalIndices);			
+				this.arrowBase.setColors(0, colors);
+				this.arrowBase.setColorIndices(0, baseColorIndices);
+				
+
+			
+				LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
+				
+				Color3f color3=new Color3f(.5f,.3f,.3f);
+				
+				Color3f ambientColour = new Color3f(color3);
+				Color3f emissiveColour = new Color3f(.1f*color3.getX(),.1f*color3.getY(), .1f*color3.getZ());
+				Color3f specularColour = new Color3f(.0f, .0f, .0f);
+				Color3f diffuseColour =new Color3f(color3);
+				float shininess = 1.0f;
+
+
+				Material material=new Material(ambientColour, emissiveColour,
+						diffuseColour, specularColour, shininess);
+				
+				Appearance app=new Appearance();
+
+				app.setMaterial(material);
+				
+				app.setLineAttributes(la);
+				
+				app.setRenderingAttributes(fieldRA);
+				
+
+				app.setPolygonAttributes(pa);
+
+				this.vectField=new Shape3D(this.arrowFace,app);
+				this.vectField.insertGeometry(this.arrowBase,0);
+			//	this.vectField.insertGeometry(this.arrows,0);
+				
+
+				this.vectField.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+				
+				arrowEdges=new Shape3D(arrows,app);
+
+
+				addChild(this.vectField);
+				
+				addChild(arrowEdges);
+
+				
+				
+	}
+	
 	private void setElementField3DArrow(Model model,ColorBar cBar,int vectMode){
 	
 	
@@ -3222,9 +3516,11 @@ public class SurfFacets extends TransformGroup{
 
 		int ix=0;
 
+		int kx=-1;
 		for(int i=model.region[nr].getFirstEl();i<=model.region[nr].getLastEl();i++)
 		{
-			//neNumb[ix]=i;
+			kx++;
+			if(!this.surfElements[kx]) continue;
 
 				P[ix]=model.getElementCenter(i);
 				V[ix]=model.element[i].getB();
@@ -3257,6 +3553,7 @@ public class SurfFacets extends TransformGroup{
 	Color color=Color.red.darker();
 
 		for(int j=0;j<this.nElements;j++){	
+			if(!this.surfElements[j]) continue;
 
 			trans[j]=new Transform3D();
 			trans[j].setTranslation(new V3f(P[j]));
@@ -3309,7 +3606,7 @@ private void rescaleElementField3DArrow(Model model,ColorBar cBar,double a){
 	Color color=Color.red.darker();
 		
 		for(int j=0;j<this.nElements;j++){	
-
+			if(!this.surfElements[j]) continue;
 		
 			//Matrix3d M =util.mat3dScale(new Vect(a*arrow[j].scale.el[0],a*arrow[j].scale.el[0],a*arrow[j].scale.el[1]));	
 			//trans[j].setScale(arrow[j].scale.el[1]);
@@ -4232,7 +4529,8 @@ public void rescaleVectField(Model model,ColorBar cBar,double a){
 		if(arrMode<2)
 		rescaleElementField2D(model,cBar,a);
 		else
-		rescaleElementField3D(model,cBar,a);
+		//rescaleElementField3D(model,cBar,a);
+		rescaleElementField3DK(model,cBar,a);
 		
 	}
 	else
@@ -4306,6 +4604,102 @@ public void rescaleElementField3D(Model model,ColorBar cBar,double a){
 		
 
 			for(int j=0; j<5;j++){
+				Vect v=R.mul(av[j].times(scale));
+				coords[p]=new P3f(P.add(v));		
+								
+				p++;
+			
+				
+			}
+		
+		
+			}
+
+		
+
+		this.arrows.setCoordinates(0, coords);
+		this.arrows.setColors(0, edgeColors);
+	
+			
+		if(arrMode==3){
+		this.arrowFace.setCoordinates(0, coords);
+		this.arrowBase.setCoordinates(0, coords);
+
+		this.arrowFace.setColors(0, faceColors);
+		this.arrowBase.setColors(0, faceColors);
+		}
+		
+	
+	}
+
+public void rescaleElementField3DK(Model model,ColorBar cBar,double a){
+	
+	int K1=this.nArrowHeadDivs;
+	
+	if(this.arrMode==4){
+		rescaleElementField3DArrow(model, cBar, a);
+		}
+	
+	int N=this.nArrows;
+
+	if(N==0) return;
+		
+		int K=K1+1;
+		if(K1>0) K++;
+		
+		double d=a*0.5*(model.maxEdgeLength+model.minEdgeLength);
+		double dx=d/6;
+		
+		Vect[] av=new Vect[K];
+		
+		for(int i=0;i<K1;i++){
+			double x=dx*cos(i*2*PI/K1);
+			double y=dx*sin(i*2*PI/K1);
+			av[i]=new Vect(x,y,0);
+		}
+		av[K1]=new Vect(0,0,d);
+		if(K1>4) 		av[K-1]=new Vect(0,0,0);
+	
+		P3f[] coords=new P3f[K*N];
+		Color3f[] faceColors=new Color3f[1];
+		if(arrMode==3)faceColors=new Color3f[N];
+		Color3f[] edgeColors= new Color3f[N];
+		
+		Vect z=new Vect(0,0,1);
+		
+
+		int p=0;
+		int ix=0;
+		for(int i=model.region[nr].getFirstEl();i<=model.region[nr].getLastEl();i++){
+			
+			if(!model.element[i].toShowVectField()) continue;
+		
+			Vect B=model.element[i].getB();
+			
+			double scale=B.norm();
+			
+
+			edgeColors[ix]=new Color3f(cBar.getColor(scale).darker());
+			if(arrMode==3)
+				faceColors[ix]=new Color3f(cBar.getColor(scale));
+			ix++;
+					
+			Mat R=util.rotMat(B.normalized(), z);
+
+			Vect P=model.getElementCenter(i).v3();
+			
+			if(model.fluxNormalized){
+
+				if(scale/model.Bmax>1e-2)
+				scale=vScale/10;
+				else
+					scale=vScale/100;
+					
+			}
+			
+		
+
+			for(int j=0; j<K;j++){
 				Vect v=R.mul(av[j].times(scale));
 				coords[p]=new P3f(P.add(v));		
 								
