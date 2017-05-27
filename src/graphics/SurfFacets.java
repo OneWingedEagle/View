@@ -630,6 +630,7 @@ public class SurfFacets extends TransformGroup{
 		
 		this.facet3ang.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
 		this.facet3ang.setCapability(GeometryArray.ALLOW_COORDINATE_WRITE);
+		this.facet3ang.setCapability(GeometryArray.ALLOW_NORMAL_WRITE);
 
 		P3f[][] vertex=new P3f[this.nSurf3angs][3];
 
@@ -676,6 +677,22 @@ public class SurfFacets extends TransformGroup{
 
 		Appearance facetApp = new Appearance();
 		Appearance edgeApp = new Appearance();
+		
+		
+		color3=new Color3f(color);
+		Color3f edCol=new Color3f(color.darker().darker());
+
+		
+		ColoringAttributes ca=new  ColoringAttributes(edCol, ColoringAttributes.SHADE_GOURAUD);
+		edgeApp.setColoringAttributes(ca);
+		ca.setCapability(ColoringAttributes.ALLOW_COLOR_WRITE);
+
+		
+		facetApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
+		facetApp.setRenderingAttributes(edgeRA);
+		edgeApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
+	   	edgeApp.setRenderingAttributes(edgeRA);
+
 
 		Color3f ambientColour = new Color3f(color3);
 		Color3f emissiveColour = new Color3f(.0f, .0f, .0f);
@@ -686,26 +703,16 @@ public class SurfFacets extends TransformGroup{
 
 		Material material=new Material(ambientColour, emissiveColour,
 				diffuseColour, specularColour, shininess);
+		
+		material.setCapability(Material.ALLOW_COMPONENT_WRITE);
+
 
 		facetApp.setMaterial(material);
 
-
-		//color3=new Color3f(.95f,.95f,.95f);			    
-		//  color3=new Color3f(color.darker());
-		color3=new Color3f(color);
-		Color3f edCol=new Color3f(color.darker().darker());
-
-
-
-		/*		  PolygonAttributes pa = new PolygonAttributes();
-				pa.setCapability(PolygonAttributes.ALLOW_MODE_READ);
-				pa.setCapability(PolygonAttributes.ALLOW_MODE_WRITE);
-				pa.setCapability(PolygonAttributes.ALLOW_OFFSET_READ);
-				pa.setCapability(PolygonAttributes.ALLOW_OFFSET_WRITE);
-				pa.setPolygonMode(PolygonAttributes.POLYGON_LINE);
-				pa.setPolygonMode(PolygonAttributes.CULL_FRONT);
-
-				facetApp.setPolygonAttributes(pa);*/
+		
+		facetApp.setPolygonAttributes(pa);
+		
+		edgeApp.setPolygonAttributes(pa);
 
 
 		this.allEdge=new LineArray(2*this.nSurfEdges,GeometryArray.COORDINATES |GeometryArray.COLOR_3);
@@ -750,7 +757,7 @@ public class SurfFacets extends TransformGroup{
 
 		}
 		edgeApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
-
+		facetApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
 
 	  	edgeApp.setRenderingAttributes(edgeRA);
 	    facetApp.setRenderingAttributes(facetRA);
@@ -758,6 +765,12 @@ public class SurfFacets extends TransformGroup{
 
 		this.surfFacets=new Shape3D(this.facet3ang,facetApp);
 		this.surfEdges=new Shape3D(this.allEdge,edgeApp);
+		
+	    
+		this.surfEdges.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+		this.surfFacets.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+		this.surfEdges.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_READ);
+		this.surfFacets.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_READ);
 
 		showFacets(true);
 		showEdges(true);
@@ -2201,10 +2214,9 @@ public class SurfFacets extends TransformGroup{
 	
 	
 	public void setEdgeColor(Color color,double transp){
-		
 
 		
-		if(this.allEdgeh==null) return;
+		if(this.allEdge==null) return;
 		Color3f color3=new Color3f(color);
 		this.surfEdges.getAppearance().getColoringAttributes().setColor(color3);
 		
@@ -2228,8 +2240,8 @@ public class SurfFacets extends TransformGroup{
 	}
 
 	public void setEdgeTransparency(double transp){
-		if(this.allEdgeh==null) return;
 
+		if(this.allEdge==null) return;
 		TransparencyAttributes tr_attr =new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,(float)transp);	
 		this.surfEdges.getAppearance().setTransparencyAttributes( tr_attr);
 
