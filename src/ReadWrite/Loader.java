@@ -100,7 +100,7 @@ public class Loader {
 				line=br.readLine();
 				double[] xyz=this.getCSV(line);
 				Vect z=new Vect(xyz);
-				
+			
 				model.node[i].setCoord(z.times(factor));
 				
 				if(model.node[i].getCoord(0)<model.spaceBoundary[0]) model.spaceBoundary[0]=model.node[i].getCoord(0);
@@ -225,6 +225,7 @@ public class Loader {
 		boolean[] elIn=new boolean[1+model.numberOfElements];
 		for(int i=1;i<=model.numberOfElements;i++)
 			/*if(model.element[i].getRegion()>7)*/ elIn[i]=true;
+
 		return loadFlux(model,fluxFilePath,angDeg,elIn);
 	}
 
@@ -269,10 +270,10 @@ boolean rotating=true;
 					
 				Vect B1=new Vect(dim);
 		
-				if(model.numberOfRegions==12 && ir>10){
+/*				if(model.numberOfRegions==12 && ir>10){
 					model.element[i].setB(B1);
 					continue;
-				}
+				}*/
 		
 
 			for(int j=0;j<dim;j++)

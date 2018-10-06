@@ -108,6 +108,7 @@ public  Color matColor(String material){
 	
 	public  Color matColor(int ir,String material,int cc, int bb){
 
+		//if(1>0) return Color.cyan;
 	
 		if(cc<-1) return color[ir-1];
 		if(cc<0 && bb==0) return color[ir-1];

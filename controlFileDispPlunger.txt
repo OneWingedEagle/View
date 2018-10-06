@@ -1,15 +1,15 @@
-data file type: 1
+data file type: 2
 
 mesh file
-C:\Works\proj8\forces2DMagDistilled\bun.txt
+C:\Works\MagFem\resultsPlunger2D\bun.txt
 
 data folder:
-C:\Works\proj8\forces2DMagDistilled
+C:\Works\MagFem\resultsPlunger2D
 
 file name common part:
-force
+disp
 
-temporal: 0,1799,20
+temporal: 0,20,1
 
 extension
 txt
@@ -18,16 +18,16 @@ animation mode: 1
 
 batch mode: f
 
-timedelay: 2
+timedelay: 300
 
 regions: 
-6
+all
 
 rotstep:0.05
 
 dt:5.55555e-6
 
-node:0
+node:-1
 comp:1
 .092 0 0
 

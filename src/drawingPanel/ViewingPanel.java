@@ -52,7 +52,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	bNavU ,bNavD,bNavZoomIn,bNavZoomOut,bFindValue,bColorChooser;
 	private Button bInfo,bRefresh;
 	public ButtonIcon bDefaultView,bFullScreen;
-	public JComboBox  stressDist,arrowOption;
+	public JComboBox  stressDist,arrowOption,plotOption;
 	public TextField tfVectorScale,tfX1,tfX2;;
 	private JPanel  regButtonPanel ,southPanel, centerPanel,colBar,eastPanel;
 	public FindValue fv = new FindValue();
@@ -80,7 +80,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	public int nChosenRegion=0, nBoundary = 6;
 	public int decimal = 3, numberOfElements, numberOfRegions;
 	public double  scaleFactor,vScale0=1,vScale,vScalefact=1,moveStep0,moveStep,Vmin,Vmax,rng=0;
-	private Vect camEye,camEye0=new Vect(.4,-.3,.3).times(3), target,target0=new Vect(3),upVect,upVect0=new Vect(0,0,1);
+	private Vect camEye,camEye0=new Vect(-.8,-2.5,1.5).times(4), target,target0=new Vect(0,0,0),upVect,upVect0=new Vect(0,0,1);
 	public boolean meshDrawn = false,meshLoaded,axesShown,meshShown,fieldShown,runMotor;
 	public boolean[] setRegion;
 	
@@ -306,9 +306,20 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		String[] arrowOption = {"pyramid", "arrow"};
 		this.arrowOption = new JComboBox(arrowOption);
 		this.arrowOption.setSelectedIndex(0);
-this.arrowOption.setEnabled(true);
+
+		this.arrowOption.setEnabled(true);
+			
+		drwpNorth.add(this.arrowOption);
 		
-	drwpNorth.add(this.arrowOption);
+		String[] plotOption = {"vector", "contour"};
+		this.plotOption = new JComboBox(plotOption);
+		this.plotOption.setSelectedIndex(0);
+
+		this.plotOption.setEnabled(true);
+		
+	
+		drwpNorth.add(this.plotOption);
+
 
 		//rubix=new RubixMove();
 		//drwpNorth.add(rubix);
@@ -330,7 +341,7 @@ this.arrowOption.setEnabled(true);
 			
 			this.regButtonPanel = new JPanel(new  FlowLayout(0, 1, 10));
 			this.regButtonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-			this.regButtonPanel.setPreferredSize(new Dimension(130, 3000));
+			this.regButtonPanel.setPreferredSize(new Dimension(130, 10000));
 			Label lbNumbRegs = new Label("Number of Regions");
 			lbNumbRegs.setFont(new Font("Times New Roman", 1, 12));
 			this.tfNumbRegs.setPreferredSize(new Dimension(60, 25));
@@ -820,7 +831,6 @@ this.arrowOption.setEnabled(true);
 
 	public void addRegButton(Model model,int ir) {
 		String name=model.region[ir].getName();
-		
 		this.regButton[ir] = new Button(ir+". "+name,Button.LEFT);
 		this.regButton[ir].setName(Integer.toString(ir));
 		if(this.setRegion[ir]){
@@ -1042,7 +1052,7 @@ this.arrowOption.setEnabled(true);
 
 			camEye0.el[0]=0.0;
 			camEye0.el[1]=0.0;
-			target0=new Vect(0,0,0);
+			//target0=new Vect(0,0,0);
 			upVect0.el[0]=0;  upVect0.el[1]=1;upVect0.el[2]=0;
 			camEye=camEye0.deepCopy();
 			target=target0.deepCopy();
@@ -1067,7 +1077,7 @@ this.arrowOption.setEnabled(true);
 			
 			target0=new Vect ((model.spaceBoundary[0]+model.spaceBoundary[1])/2,(model.spaceBoundary[2]+
 					model.spaceBoundary[3])/2,(model.spaceBoundary[4]+model.spaceBoundary[5])/2);
-
+target0.el[2]=1;
 		resetView();
 		}
 
@@ -1233,7 +1243,7 @@ this.arrowOption.setEnabled(true);
 	
 		if(this.tfVectorScale.getText()!=null)
 		this.vScale=Double.parseDouble(this.tfVectorScale.getText());
-		
+
 		if(this.vScale<=0){
 			
 			String msg = "Scale factor must be positive.";
@@ -1454,7 +1464,7 @@ public void scaleNodalScalar(Model model){
 
 
 	public void deformMesh(Model model){
-
+	
 		for(int k=1;k<=model.numberOfRegions;k++){
 			if(this.setRegion[k])
 				this.surfFacets[k].deformReg(model, this.vScale);
@@ -1538,7 +1548,7 @@ public void scaleNodalScalar(Model model){
 		try {
 
 			Rectangle rec=new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-			 rec=new Rectangle(200,200,800,500);
+			 rec=new Rectangle(500,300,1200,800);
 			 BufferedImage bi = new Robot().createScreenCapture( rec);
 			 File file=new File(root+"\\shot"+suff+".jpg");
 			 ImageIO.write( bi, "bmp",file );

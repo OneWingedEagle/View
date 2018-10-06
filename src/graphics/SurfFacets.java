@@ -674,45 +674,32 @@ public class SurfFacets extends TransformGroup{
 
 			}
 		}
-
+		
+		
 		Appearance facetApp = new Appearance();
 		Appearance edgeApp = new Appearance();
-		
-		
-		color3=new Color3f(color);
-		Color3f edCol=new Color3f(color.darker().darker());
-
-		
-		ColoringAttributes ca=new  ColoringAttributes(edCol, ColoringAttributes.SHADE_GOURAUD);
-		edgeApp.setColoringAttributes(ca);
-		ca.setCapability(ColoringAttributes.ALLOW_COLOR_WRITE);
-
-		
 		facetApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
 		facetApp.setRenderingAttributes(edgeRA);
 		edgeApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
 	   	edgeApp.setRenderingAttributes(edgeRA);
 
-
 		Color3f ambientColour = new Color3f(color3);
-		Color3f emissiveColour = new Color3f(.0f, .0f, .0f);
-		Color3f specularColour = new Color3f(.1f, .1f, .1f);
+		Color3f emissiveColour = new Color3f(0,0,0);
+		Color3f specularColour = new Color3f(.1f,.1f,.1f);
 		Color3f diffuseColour =new Color3f(.8f*color3.getX(), .8f*color3.getY(), .8f*color3.getZ());
 		float shininess = 10.0f;
-
+		
 
 		Material material=new Material(ambientColour, emissiveColour,
 				diffuseColour, specularColour, shininess);
-		
 		material.setCapability(Material.ALLOW_COMPONENT_WRITE);
-
 
 		facetApp.setMaterial(material);
 
-		
-		facetApp.setPolygonAttributes(pa);
-		
-		edgeApp.setPolygonAttributes(pa);
+
+	
+		color3=new Color3f(color);
+		Color3f edCol=new Color3f(color.darker());
 
 
 		this.allEdge=new LineArray(2*this.nSurfEdges,GeometryArray.COORDINATES |GeometryArray.COLOR_3);
@@ -737,14 +724,28 @@ public class SurfFacets extends TransformGroup{
 			this.allEdge.setColor(2*i+1,edCol);
 		}
 
+		
 		LineAttributes la=new LineAttributes(1.0f,LineAttributes.PATTERN_SOLID,false);
 
 		TransparencyAttributes t_attr1,t_attr2,t_attr3;
-		t_attr1 =new TransparencyAttributes(TransparencyAttributes.NONE,.0f);
+		t_attr1 =new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,.0f);
 		t_attr2 =new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,(float)transp);		
 		t_attr3 =new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,(float)(.8*transp));	
 
 		edgeApp.setLineAttributes(la);
+		
+		Color3f ambientColour2 = new Color3f(color3);
+		Color3f emissiveColour2 = new Color3f(0,0,0);
+		Color3f specularColour2 = new Color3f(.1f,.1f,.1f);
+		Color3f diffuseColour2 =new Color3f(.8f*color3.getX(), .8f*color3.getY(), .8f*color3.getZ());
+		float shininess2 = 10.0f;
+		
+		Material edgeMat=new Material(ambientColour2, emissiveColour2,
+				diffuseColour2, specularColour2, shininess2);
+		edgeMat.setCapability(Material.ALLOW_COMPONENT_WRITE);
+		edgeApp.setMaterial(edgeMat);
+
+		
 		if(!model.region[ir].getMaterial().startsWith("air")){
 
 			facetApp.setTransparencyAttributes(t_attr1);
@@ -756,24 +757,38 @@ public class SurfFacets extends TransformGroup{
 			edgeApp.setTransparencyAttributes(t_attr3);
 
 		}
+
+		ColoringAttributes ca=new  ColoringAttributes(edCol, ColoringAttributes.SHADE_GOURAUD);
+
+
+		edgeApp.setColoringAttributes(ca);
+		ca.setCapability(ColoringAttributes.ALLOW_COLOR_WRITE);
+
+	   	edgeApp.setRenderingAttributes(edgeRA);
+	    facetApp.setRenderingAttributes(facetRA);
+
+	    
 		edgeApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
 		facetApp.setCapability(Appearance.ALLOW_TRANSPARENCY_ATTRIBUTES_WRITE);
 
-	  	edgeApp.setRenderingAttributes(edgeRA);
-	    facetApp.setRenderingAttributes(facetRA);
+		
 
+
+		facetApp.setPolygonAttributes(pa);
+		
+		edgeApp.setPolygonAttributes(pa);
+		
 
 		this.surfFacets=new Shape3D(this.facet3ang,facetApp);
 		this.surfEdges=new Shape3D(this.allEdge,edgeApp);
-		
-	    
 		this.surfEdges.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
 		this.surfFacets.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
 		this.surfEdges.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_READ);
 		this.surfFacets.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_READ);
-
+		
 		showFacets(true);
 		showEdges(true);
+	   
 
 	}
 
@@ -929,6 +944,9 @@ public class SurfFacets extends TransformGroup{
 			}
 
 		surfElements=new boolean[this.nElements];
+		for(int j=0;j<surfElements.length;j++){
+			surfElements[j]=true;                //<<======= Surface element plot bypassed
+		}
 
 	int kx=0;
 	for(int i=model.region[ir].getFirstEl();i<=model.region[ir].getLastEl();i++){
@@ -1419,6 +1437,8 @@ public class SurfFacets extends TransformGroup{
 
 		this.allEdge=new LineArray(2*this.nSurfEdges,GeometryArray.COORDINATES |GeometryArray.COLOR_3);
 		this.allEdge.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
+		//this.allEdge.setCapability(GeometryArray.ALLOW_COORDINATE_WRITE);
+		this.allEdge.setCapability(GeometryArray.ALLOW_COLOR_READ);
 
 
 		for(int i=0; i<this.nSurfEdges;i++)
@@ -1468,6 +1488,11 @@ public class SurfFacets extends TransformGroup{
 
 		this.surfFacets=new Shape3D(this.facet3ang,facetApp);
 		this.surfEdges=new Shape3D(this.allEdge,edgeApp);
+		
+		this.surfEdges.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+		this.surfFacets.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+		this.surfEdges.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_READ);
+		this.surfFacets.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_READ);
 		
 		showFacets(true);
 		showEdges(true);
@@ -2114,7 +2139,7 @@ public class SurfFacets extends TransformGroup{
 		else if(this.elCode==1) {setFaceColorQuad(color); return;}
 		else if(this.elCode==2) {setFaceColorTetra(color); return;} 
 		else if(this.elCode==3) {setFaceColorWedge(color); return;} 
-	//	else if(this.elCode==5) {setFaceColorPyramid(color); return;} 
+		else if(this.elCode==5) {setFaceColorPyramid(color); return;} 
 
 		Color3f color3=new Color3f(color);
 
@@ -2183,13 +2208,29 @@ public class SurfFacets extends TransformGroup{
 
 
 	}
+	
+	public void setFaceColorPyramid(Color color){
+	//	if(this.surfFacets==null) 
+			//return;
+
+		Color3f color3=new Color3f(color);
+
+				int Nt=this.nSurf3angs;
+		int N=4*Nt;
+		Color3f[] colors=new Color3f[N];
+		for(int i=0;i<N;i++)
+			colors[i]=new Color3f(color);
+
+		this.facet3ang.setColors(0,colors);
+
+		this.surfFacets.getAppearance().getMaterial().setAmbientColor(color3);
+		this.surfFacets.getAppearance().getMaterial().setDiffuseColor(color3);
+
+
+	}
 
 	public void setEdgeColor(Color color){
 		
-		
-	
-		
-		if(this.allEdgeh==null) return;
 
 		int nNodes=this.surfVertNumb.length;
 		Color3f[] cld=new Color3f[nNodes];
@@ -2198,8 +2239,17 @@ public class SurfFacets extends TransformGroup{
 			cld[i]=new Color3f(color);
 	}
 
+	
 		
+		if(this.allEdgeh!=null) 		
 		this.allEdgeh.setColors(0,cld);
+		if(this.allEdge!=null) 	{	
+			for(int i=0;i<nNodes;i++){
+			this.allEdge.setColor(2*i,cld[i]);
+			this.allEdge.setColor(2*i+1,cld[i]);
+			}
+		//	this.allEdge.setColors(0,cld);
+		}
 		
 		if(this.dim==3)
 		{
@@ -2208,21 +2258,24 @@ public class SurfFacets extends TransformGroup{
 		this.surfEdges.getAppearance().getMaterial().setDiffuseColor(color3);
 		}
 		
-
-
+		
 	}
 	
 	
 	public void setEdgeColor(Color color,double transp){
 
-		
-		if(this.allEdge==null) return;
+		if(this.allEdgeh==null && this.allEdge==null) return;
 		Color3f color3=new Color3f(color);
+		if(this.surfEdges!=null)
 		this.surfEdges.getAppearance().getColoringAttributes().setColor(color3);
-		
+
 		TransparencyAttributes tr_attr =new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,(float)transp);	
 		this.surfEdges.getAppearance().setTransparencyAttributes( tr_attr);
-
+		if(this.allEdge!=null) 	{	
+			for(int i=0;i<allEdge.getVertexCount();i++){
+			this.allEdge.setColor(i,color3);
+						}
+		}
 
 	}
 
@@ -2241,7 +2294,7 @@ public class SurfFacets extends TransformGroup{
 
 	public void setEdgeTransparency(double transp){
 
-		if(this.allEdge==null) return;
+		if(this.allEdgeh==null && this.allEdge==null) return;
 		TransparencyAttributes tr_attr =new TransparencyAttributes(TransparencyAttributes.BLEND_ONE,(float)transp);	
 		this.surfEdges.getAppearance().setTransparencyAttributes( tr_attr);
 
@@ -2458,6 +2511,7 @@ public class SurfFacets extends TransformGroup{
 			coInd[this.surfVertNumb[i]]=i;
 			Vect v=model.node[this.surfVertNumb[i]].getCoord();
 
+			 v=v.v3();
 
 			if(model.node[this.surfVertNumb[i]].u!=null){
 				Vect dd=model.node[this.surfVertNumb[i]].getU().times(defScale).v3();
@@ -3739,7 +3793,8 @@ private void rescaleElementField3DArrow(Model model,ColorBar cBar,double a){
 
 			for(int j=0; j<K;j++){
 				Vect v=R.mul(av[j].times(scale));
-				coords[p]=new P3f(P.add(v.v3()));
+	
+				coords[p]=new P3f(P.add(v).v3());
 				
 				p++;
 				
@@ -4895,7 +4950,7 @@ public void rescaleNodalField3D(Model model,ColorBar cBar,double a,boolean all){
 
 			for(int j=0; j<K;j++){
 				Vect v=R.mul(av[j].times(scale));
-				coords[p]=new P3f(P.add(v.v3()));		
+				coords[p]=new P3f(P.add(v).v3());		
 								
 				p++;
 			

@@ -1,10 +1,10 @@
 data file type: 0
 
 mesh file
-C:\Works\MagFem\fluxesGearRotOut\bgearView.txt
+C:\Works\MagFem\fluxesGearNoPMOut\bun0.txt
 
 data folder:
-C:\Works\MagFem\fluxesGearRotOut
+C:\Works\MagFem\fluxesGearNoPMOut
 
 file name common part:
 flux
@@ -16,12 +16,12 @@ txt
 
 animation mode: 0
 
-batch mode: t
+batch mode: f
 
 timedelay: 20
 
 regions: 
-1,2
+all
 
 rotstep:1
 

@@ -25,7 +25,7 @@ public class Cartesian2D extends TransformGroup{
 		
 	public Cartesian2D(Vect[] ends, Color xColor, Color yColor){	
 
-	float elevation=1e-3f;
+	float elevation=1e-8f;
 
 		
 		float Xm,Ym;

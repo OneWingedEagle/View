@@ -83,7 +83,7 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 
 		this.gui.vwp.jslider.addChangeListener(this );
-
+	
 		//gui.vwp.divert=true;
 		/*Main.this.model.filePath= System.getProperty("user.dir") + "\\motWithRot3DCut.txt";
 		loadModel();
@@ -242,9 +242,9 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 		this.interaction=2;
 
 		if(result && !this.heavy){
-			if(this.gui.vwp.runMotor){
+			if(this.gui.vwp.plotOption.getSelectedIndex()==1){
 				model.setNodalScalar(0);
-				if(model.nAnimSteps==1)
+				//if(model.nAnimSteps==1)
 					this.gui.vwp.paintNodalScalar(this.model);
 			}
 			else{
@@ -431,7 +431,8 @@ public class Main implements ActionListener, ItemListener,ChangeListener, DropTa
 
 					animateVectSurf();
 				}
-				else if(model.animMode==1) animateShape();
+				else if(model.animMode==1) 
+					animateShape();
 			}
 			else if(model.animDataCode==3){
 				animatePaint();
@@ -1519,7 +1520,7 @@ Tdq=Tdq.times(sqrt(2.0/3));*/
 					for(int k=1;k<=model.numberOfRegions;k++){
 						if(model.region[k].rotor)
 							gui.vwp.surfFacets[k].setTransform(tr);
-						else if(k>10) gui.vwp.surfFacets[k].setTransform(tr2);
+						else if(k>8) gui.vwp.surfFacets[k].setTransform(tr2);
 
 					}
 
@@ -1553,11 +1554,15 @@ Tdq=Tdq.times(sqrt(2.0/3));*/
 		Thread tr = new Thread() {
 			public void run() {
 
+				String path=System.getProperty("user.dir")+"\\CanvasImages";
+				File shotsFolder = new File(path);
+				deleteDir(shotsFolder);
 				//gui.vwp.runMotor=!gui.vwp.runMotor;			
 
 				//int n0=11018;
 				interaction=2;
 
+		
 
 
 				for(int k=1;k<=model.numberOfRegions;k++)
@@ -1612,7 +1617,7 @@ Tdq=Tdq.times(sqrt(2.0/3));*/
 						}
 
 					nDefNodes=ix;
-
+			
 
 
 					nv=new Vect[Lt][nDefNodes];
@@ -1679,10 +1684,11 @@ Tdq=Tdq.times(sqrt(2.0/3));*/
 						if(model.batchAnim)
 						{
 							int iy=ix%nv.length;
-
-
-							for(int j=0;j<nDefNodes;j++)
+					
+							for(int j=0;j<nDefNodes;j++){
 								model.node[map[j]].setU(nv[iy][j]);
+								//nv[iy][j].hshow();
+							}
 						}
 						else{
 							//file=folder+model.animDataFile[i];
@@ -1704,6 +1710,7 @@ Tdq=Tdq.times(sqrt(2.0/3));*/
 							gui.vwp.Vmax=1e2*model.uMax;
 							gui.vwp.setSlider();
 						}
+						gui.vwp.vScale=1e7;
 						gui.vwp.deformMesh(model);
 
 
@@ -1720,6 +1727,8 @@ Tdq=Tdq.times(sqrt(2.0/3));*/
 						}
 
 						m+=model.nInc;
+						
+						gui.vwp.bShot.doClick();
 
 						ix++;
 					}
@@ -2057,7 +2066,6 @@ Tdq=Tdq.times(sqrt(2.0/3));*/
 					}
 
 					nDefNodes=ix;
-
 
 					nv=new Vect[Lt][nDefNodes];
 					ix=0;
