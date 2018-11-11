@@ -80,7 +80,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 	public int nChosenRegion=0, nBoundary = 6;
 	public int decimal = 3, numberOfElements, numberOfRegions;
 	public double  scaleFactor,vScale0=1,vScale,vScalefact=1,moveStep0,moveStep,Vmin,Vmax,rng=0;
-	private Vect camEye,camEye0=new Vect(-.8,-2.5,1.5).times(4), target,target0=new Vect(0,0,0),upVect,upVect0=new Vect(0,0,1);
+	private Vect camEye,camEye0=new Vect(-.8,-2.5,1.5).times(2), target,target0=new Vect(0,0,0),upVect,upVect0=new Vect(0,0,1);
 	public boolean meshDrawn = false,meshLoaded,axesShown,meshShown,fieldShown,runMotor;
 	public boolean[] setRegion;
 	
@@ -1026,7 +1026,6 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		
 		mouseRotate.setFactor(.005);
 
-
 		if(model.dim==2) {
 			
 		
@@ -1046,19 +1045,28 @@ public class ViewingPanel extends JPanel implements ActionListener {
 		//	this.univGroup.addChild(this.cartesian2D);
 			this.universe.addBranchGraph(this.group);
 
+			
+			target0=model.center.v3();
+			
+			camEye0=target0.deepCopy();
+			
+			double maxDist=0;
+			
+			for(int k=0;k<4;k++){
+				double dist=ends[k].sub(target0.v2()).norm();
+				if(dist>maxDist) maxDist=dist;
+			}
+
+			
 			if(model.spaceBoundary==null) camEye0.el[2]=1;
 			else 
-				camEye0.el[2]=2*model.spaceBoundary[1];
-
-			camEye0.el[0]=0.0;
-			camEye0.el[1]=0.0;
-			//target0=new Vect(0,0,0);
+				camEye0.el[2]=maxDist/tan(PI/4);
+		
+			
 			upVect0.el[0]=0;  upVect0.el[1]=1;upVect0.el[2]=0;
 			camEye=camEye0.deepCopy();
 			target=target0.deepCopy();
 			upVect=upVect0.deepCopy();
-			//mouseRotate.setFactor(0);
-			//newViewer();
 
 			resetView();
 		}
@@ -1066,6 +1074,7 @@ public class ViewingPanel extends JPanel implements ActionListener {
 
 		else
 		{
+			
 			if(cartesian2D!=null && this.cartesian2D.getParent()!=null){
 			this.group.detach();
 			this.univGroup.removeChild(this.cartesian2D);
@@ -1073,11 +1082,49 @@ public class ViewingPanel extends JPanel implements ActionListener {
 			this.universe.addBranchGraph(this.group);
 			}
 			
+			Vect[] ends=new Vect[8];
+			
+			double sx=1.2;
+			double sy=1.2;
+			double sz=1.2;
+			int ix=0;
+			ends[ix++]=new Vect(sx*model.spaceBoundary[0],sy*model.spaceBoundary[2],sz*model.spaceBoundary[4]);
+			ends[ix++]=new Vect(sx*model.spaceBoundary[1],sy*model.spaceBoundary[2],sz*model.spaceBoundary[4]);
+			ends[ix++]=new Vect(sx*model.spaceBoundary[0],sy*model.spaceBoundary[3],sz*model.spaceBoundary[4]);
+			ends[ix++]=new Vect(sx*model.spaceBoundary[1],sy*model.spaceBoundary[3],sz*model.spaceBoundary[4]);
+			
+			ends[ix++]=new Vect(sx*model.spaceBoundary[0],sy*model.spaceBoundary[2],sz*model.spaceBoundary[5]);
+			ends[ix++]=new Vect(sx*model.spaceBoundary[1],sy*model.spaceBoundary[2],sz*model.spaceBoundary[5]);
+			ends[ix++]=new Vect(sx*model.spaceBoundary[0],sy*model.spaceBoundary[3],sz*model.spaceBoundary[5]);
+			ends[ix++]=new Vect(sx*model.spaceBoundary[1],sy*model.spaceBoundary[3],sz*model.spaceBoundary[5]);
+			
 			zoom=-(int)(1.0/model.spaceBoundary[5]);
 			
-			target0=new Vect ((model.spaceBoundary[0]+model.spaceBoundary[1])/2,(model.spaceBoundary[2]+
-					model.spaceBoundary[3])/2,(model.spaceBoundary[4]+model.spaceBoundary[5])/2);
-target0.el[2]=1;
+			target0=model.center;
+			
+			camEye0=target0.deepCopy();
+
+			
+			double maxDist=0;
+			double maxDistz=0;
+			for(int k=0;k<8;k++){
+				double distz=abs(ends[k].el[2]-target0.el[2]);
+				double dist=ends[k].sub(target0).norm();
+				if(dist>maxDist) maxDist=dist;
+				if(distz>maxDistz) maxDistz=distz;
+			}
+
+			
+			camEye0.el[1]=	camEye0.el[1]-maxDist;
+			
+			camEye0.el[2]=2*maxDist;
+			
+			upVect0.el[0]=0;  upVect0.el[1]=1;upVect0.el[2]=0;
+
+			camEye=camEye0.deepCopy();
+			target=target0.deepCopy();
+			upVect=upVect0.deepCopy();
+
 		resetView();
 		}
 
@@ -1548,7 +1595,7 @@ public void scaleNodalScalar(Model model){
 		try {
 
 			Rectangle rec=new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-			 rec=new Rectangle(500,300,1200,800);
+			 rec=new Rectangle(600,300,1000,800);
 			 BufferedImage bi = new Robot().createScreenCapture( rec);
 			 File file=new File(root+"\\shot"+suff+".jpg");
 			 ImageIO.write( bi, "bmp",file );

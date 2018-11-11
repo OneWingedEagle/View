@@ -1729,6 +1729,11 @@ Tdq=Tdq.times(sqrt(2.0/3));*/
 						m+=model.nInc;
 						
 						gui.vwp.bShot.doClick();
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 
 						ix++;
 					}
@@ -2317,6 +2322,7 @@ Tdq=Tdq.times(sqrt(2.0/3));*/
 							this.thread=new Thread(){
 								@Override
 								public void run(){
+									util.pr(666);
 									loadFlux(); 
 								}
 							};

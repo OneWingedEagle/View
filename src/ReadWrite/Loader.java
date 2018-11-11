@@ -202,6 +202,12 @@ public class Loader {
 					model.element[i].setRegion(ir);
 			
 			model.setMaxDim();
+			
+			model.center=new Vect(model.dim);
+			model.center.el[0]=(model.spaceBoundary[0]+model.spaceBoundary[1])/2;
+			model.center.el[1]=(model.spaceBoundary[2]+model.spaceBoundary[3])/2;
+			if(model.dim==3)
+			model.center.el[2]=(model.spaceBoundary[4]+model.spaceBoundary[5])/2;
 				
 				
 		}
@@ -244,12 +250,14 @@ boolean rotating=true;
 	}
 	
 	try{
-		Scanner scr=new Scanner(new FileReader(fluxFilePath));
-
-		scr.next();
-		int dim=Integer.parseInt(scr.next());
-
-		int nElements=Integer.parseInt(scr.next());
+		FileReader fr=new FileReader(fluxFilePath);
+		BufferedReader br = new BufferedReader(fr);
+		String line=br.readLine();
+		 line=br.readLine();
+		util.pr(line);
+		int dim=Integer.parseInt(line);
+		line=br.readLine();
+		int nElements=Integer.parseInt(line);
 		
 
 		if(nElements!=model.numberOfElements) {
@@ -274,10 +282,10 @@ boolean rotating=true;
 					model.element[i].setB(B1);
 					continue;
 				}*/
-		
-
+				line=br.readLine();
+				double[] data=this.getCSV(line);
 			for(int j=0;j<dim;j++)
-				B1.el[j]=Double.parseDouble(scr.next());
+				B1.el[j]=data[j];
 			
 			/*//if(ir<3) B1.timesVoid(.1);
 			double mm=B1.norm();
@@ -306,8 +314,8 @@ boolean rotating=true;
 
 		model.Bmax=sqrt(Bmax2);
 		model.Bmin=sqrt(Bmin2);
-		scr.close();
-
+		br.close();
+fr.close();
 		System.out.println("Flux was loaded from "+fluxFilePath+" to the model.");
 		model.fluxLoaded=true;
 		return true;

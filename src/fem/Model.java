@@ -49,6 +49,8 @@ public class Model{
 	public String eddyFolder,filePath,meshFilePath,dataFilePath,fileCommon,fileExtension,
 	fluxFilePath,eddyFilePath,fluxFolder,animDataFolder,chosenNodeCoord;
 
+	public Vect center;
+	
 	public Model(){}
 
 	public Model(String bun){
@@ -825,13 +827,13 @@ public class Model{
 	public double getRmax(){	
 
 		double rmax=0;
-
 		for(int i=1;i<=numberOfNodes;i++){
 
 			double rn=node[i].getCoord().norm();
 			if(rn>rmax) rmax=rn;
 
 		}
+		
 		return rmax;
 	}
 
